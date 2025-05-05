@@ -26,6 +26,7 @@ public class LoginPageTest extends BaseTest {
         // Проверяем, что заголовок содержит "Login"
         $("h1").shouldHave(text("Log in to your online training"));
 //        $("h1").shouldHave(Condition.matchText("(?i).*log in.*")); частичное совпадение
+        System.out.println("Тест запущен");
 
     }
 }
