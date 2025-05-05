@@ -1,2 +1,2 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","3813","openLoginPageAndCheckTitle","UI Test Suite","Mon May 05 11:36:20 UTC 2025","passed","Mon May 05 11:36:24 UTC 2025","tests.LoginPageTest","UI Tests","tests.LoginPageTest","openLoginPageAndCheckTitle"
+"Открытие страницы логина и проверка заголовка","2395","openLoginPageAndCheckTitle","UI Test Suite","Mon May 05 12:07:12 UTC 2025","passed","Mon May 05 12:07:14 UTC 2025","tests.LoginPageTest","UI Tests","tests.LoginPageTest","openLoginPageAndCheckTitle"
