@@ -35,11 +35,11 @@ jobs:
           sudo npm install -g allure-commandline --unsafe-perm=true
 
       - name: Generate Allure Report
-        run: allure generate target/allure-results --clean -o allure-report
+        run: allure generate target/allure-results --clean -o target/allure-report
 
       - name: Deploy Allure Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
-          destination_dir: target/allure-report
+          publish_dir: ./target/allure-report
+          destination_dir: allure-report

@@ -1,4 +1,7 @@
 target/
+# Allure reports (local, not needed in Git)
+allure-results/
+allure-report/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
