@@ -3,10 +3,7 @@ package tests;
 import base.BaseTest;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
-import io.qameta.allure.Owner;
-import io.qameta.allure.Story;
+import io.qameta.allure.*;
 import org.testng.annotations.Test;
 
 import static com.codeborne.selenide.Selenide.*;
@@ -18,6 +15,7 @@ public class LoginPageTest extends BaseTest {
     @Feature("Login Page")
     @Story("Отображение заголовка")
     @Owner("nurlan")
+    @Description("Открытие страницы логина и проверка заголовка")
     @Test
     public void openLoginPageAndCheckTitle() {
         // Открываем страницу
