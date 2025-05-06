@@ -1,4 +1,4 @@
-name: Run UI Tests with Allure and publish to GitHub Pages
+name: Run API Tests with Allure and publish to GitHub Pages
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
           sudo apt install -y ./google-chrome-stable_current_amd64.deb
 
       - name: Run Maven tests (headless)
-        run: xvfb-run --auto-servernum mvn clean test -DsuiteXmlFile=testng.xml
+        run:  mvn clean test -DsuiteXmlFile=testng.xml
 
       - name: Install Allure CLI
         run: |

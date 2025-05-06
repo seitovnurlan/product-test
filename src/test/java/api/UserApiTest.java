@@ -1,5 +1,9 @@
 package api;
 
+import io.qameta.allure.*;
+import org.json.JSONObject;
+import org.testng.annotations.Test;
+import utils.MockDataGenerator;
 import com.github.javafaker.Faker;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -8,6 +12,9 @@ import org.testng.annotations.*;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
+
+@Epic("User API")
+@Feature("User CRUD operations")
 
 public class UserApiTest {
 
@@ -22,6 +29,10 @@ public class UserApiTest {
     }
 
     @Test(priority = 1)
+    @Story("Create new user")
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("your-name")
+    @Description("Создание нового пользователя с валидными данными, ожидается 200 OK")
     public void createUser_shouldReturn200() {
         name = faker.name().fullName();
         email = faker.internet().emailAddress();
@@ -50,6 +61,10 @@ public class UserApiTest {
     }
 
     @Test(priority = 2, dependsOnMethods = "createUser_shouldReturn200")
+    @Story("Get user by ID")
+    @Severity(SeverityLevel.NORMAL)
+    @Owner("your-name")
+    @Description("Получение созданного пользователя по ID, ожидается 200 OK")
     public void getUserById_shouldReturn200() {
         given()
                 .pathParam("id", userId)
@@ -62,6 +77,10 @@ public class UserApiTest {
     }
 
     @Test(priority = 3, dependsOnMethods = "createUser_shouldReturn200")
+    @Story("Update existing user")
+    @Severity(SeverityLevel.NORMAL)
+    @Owner("your-name")
+    @Description("Обновление данных пользователя, ожидается 200 OK")
     public void updateUser_shouldReturn200() {
         String updatedName = faker.name().firstName();
         String updatedEmail = faker.internet().emailAddress();
@@ -87,6 +106,10 @@ public class UserApiTest {
     }
 
     @Test(priority = 4, dependsOnMethods = "createUser_shouldReturn200")
+    @Story("Delete user by ID")
+    @Severity(SeverityLevel.NORMAL)
+    @Owner("your-name")
+    @Description("Удаление пользователя по ID, ожидается 200 OK")
     public void deleteUser_shouldReturn200() {
         given()
                 .pathParam("id", userId)
@@ -97,6 +120,10 @@ public class UserApiTest {
     }
 
     @Test(priority = 5, dependsOnMethods = "deleteUser_shouldReturn200")
+    @Story("Check deleted user")
+    @Severity(SeverityLevel.MINOR)
+    @Owner("your-name")
+    @Description("Проверка удаления пользователя, ожидается 404 Not Found")
     public void getDeletedUser_shouldReturn404() {
         given()
                 .pathParam("id", userId)
