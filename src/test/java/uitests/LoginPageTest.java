@@ -1,7 +1,6 @@
-package tests;
+package uitests;
 
-import base.BaseTest;
-import com.codeborne.selenide.Condition;
+import core.BaseTest;
 import com.codeborne.selenide.Selenide;
 import io.qameta.allure.*;
 import org.testng.annotations.Test;
