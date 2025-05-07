@@ -151,20 +151,20 @@ product-test/
 │   │       └── utils/
 │   │           ├── CommonUtils.java       # Общие утилиты
 │   │           └── MockDataGenerator.java # Генератор мок-данных
-│   └── test/
-│       ├── java/
-│       │   ├── api/                       # API тесты
-│       │   │   ├── OrderApiTest.java
-│       │   │   ├── ProductApiTest.java
-│       │   │   └── UserApiTest.java
-│       │   ├── config/                    # Конфигурация
-│       │   │   ├── DriverFactory.java     # Инициализация WebDriver
-│       │   │   └── TestConfig.java        # Настройки тестов
-│       │   ├── core/
-│       │   │   └── BaseTest.java          # Базовый тестовый класс
-│       │   ├── pages/                     # Page Objects
-│       │   │   └── LoginPage.java         # Страница логина
-│       │   └── utils/
+│   └── test/src/
+└── test/
+│    └── java/
+│       └── com/
+│           └── qa/
+│               └── tests/
+│                   ├── level1/
+│                   │   └── QaLevel1Test.java # API тесты
+│                   ├── level2/
+│                   │   └── QaLevel2Test.java
+│                   └── level3/
+│                       └── QaLevel3Test.java
+│
+│
 │       │       └── TestDataGenerator.java # Генератор тестовых данных
 │       └── resources/                     # Ресурсы
 ├── Dockerfile              # Конфигурация Docker образа

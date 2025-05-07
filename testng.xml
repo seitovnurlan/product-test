@@ -1,34 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="API Test Suite">
+<suite name="API Test Suite" verbose="1" parallel="false">
 
     <listeners>
         <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
     </listeners>
 
-    <test name="User API Tests">
+    <test name="QA Level 1 Tests">
         <classes>
-            <class name="api.UserApiTest"/>
+            <class name="org.tests.QaLevel1Test"/>
         </classes>
-
     </test>
+
+    <test name="QA Level 2 Tests">
+        <classes>
+            <class name="org.tests.QaLevel2Test"/>
+        </classes>
+    </test>
+
+    <test name="QA Level 3 Tests">
+        <classes>
+            <class name="org.tests.QaLevel3Test"/>
+        </classes>
+    </test>
+
 </suite>
-
-
-<!--<suite name="UI Test Suite" verbose="1" parallel="none">-->
-
-<!--<listeners>-->
-<!--<listener class-name="io.qameta.allure.testng.AllureTestNg"/>-->
-<!--</listeners>-->
-
-<!--<test name="UI Tests">-->
-<!--<classes>-->
-<!--    <class name="uitests.LoginPageTest"/>-->
-<!--</classes>-->
-
-<!--</test>-->
-<!--</suite>-->
-
-<!--<packages>-->
-<!--<package name="uitests" />-->
-<!--</packages>-->

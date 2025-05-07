@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="55b05099-3f3e-46b4-b54f-9894b494ee9a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/tests/ProductClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel1Test.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel2Test.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel3Test.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/utils/MockTimeProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/resources/logback.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/config/DriverFactory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/config/TestConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/core/BaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/BaseTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/pages/LoginPage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/uitests/LoginPageTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testng.xml" beforeDir="false" afterPath="$PROJECT_DIR$/testng.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;seitovnurlan&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/seitovnurlan/product-test.git&quot;,
+    &quot;accountId&quot;: &quot;f6e5a482-d70d-4ea9-8082-9697ca5e0846&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2wUa30tZ4nKMyyyOo2Fdy8pLqFu" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG.QaLevel1Test.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG.UserApiTest.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.19885057&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/target" />
+    </key>
+  </component>
+  <component name="RunManager" selected="TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml">
+    <configuration name="QaLevel1Test" type="TestNG" temporary="true" nameIsGenerated="true">
+      <module name="product-test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.tests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.tests" />
+      <option name="MAIN_CLASS_NAME" value="org.tests.QaLevel1Test" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserApiTest" type="TestNG" temporary="true" nameIsGenerated="true">
+      <module name="product-test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="api.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="api" />
+      <option name="MAIN_CLASS_NAME" value="api.UserApiTest" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="/Users/nurlanseitov/IdeaProjects/product-test/testng.xml" type="TestNG" temporary="true" nameIsGenerated="true">
+      <module name="product-test" />
+      <option name="SUITE_NAME" value="$PROJECT_DIR$/testng.xml" />
+      <option name="TEST_OBJECT" value="SUITE" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml" />
+        <item itemvalue="TestNG.QaLevel1Test" />
+        <item itemvalue="TestNG.UserApiTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="55b05099-3f3e-46b4-b54f-9894b494ee9a" name="Changes" comment="" />
+      <created>1746098402832</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746098402832</updated>
+    </task>
+    <servers />
+  </component>
+</project>
