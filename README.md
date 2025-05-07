@@ -139,34 +139,33 @@ mvn allure:report
 
 ```text                         
 product-test/
-├── .github/
+├── .github/                               # Папка для конфигураций GitHub Actions
 │   └── workflows/
-│       ├── ci-cd.yml       # CI/CD пайплайн
-│       └── test.yml        # Тестовый пайплайн
-├── k8s/
-│   └── deployment.yml      # Конфиг деплоймента в Kubernetes
-├── src/
+│       ├── ci-cd.yml                     # CI/CD пайплайн: автоматическое деплоирование и тестирование
+│       └── test.yml                       # Тестовый пайплайн: запуск тестов при пуше в репозиторий
+├── k8s/                                   # Папка для конфигураций Kubernetes
+│   └── deployment.yml                    # Конфигурация деплоймента приложения в Kubernetes
+├── src/                                   # Основной исходный код
 │   ├── main/
 │   │   └── java/
 │   │       └── utils/
-│   │           ├── CommonUtils.java       # Общие утилиты
-│   │           └── MockDataGenerator.java # Генератор мок-данных
-│   └── test/src/
-└── test/
-│    └── java/
-│       └── com/
-│           └── qa/
-│               └── tests/
-│                   ├── level1/
-│                   │   └── QaLevel1Test.java # API тесты
-│                   ├── level2/
-│                   │   └── QaLevel2Test.java
-│                   └── level3/
-│                       └── QaLevel3Test.java
-│
-│
-│       │       └── TestDataGenerator.java # Генератор тестовых данных
-│       └── resources/                     # Ресурсы
-├── Dockerfile              # Конфигурация Docker образа
-├── pom.xml                 # Maven конфигурация
-└── testing.xml             # TestNG конфигурация                                                                                                               
+│   │           ├── CommonUtils.java       # Общие утилиты для работы с тестами и данными
+│   │           └── MockDataGenerator.java # Генератор мок-данных для тестов
+│   └── test/                              # Папка для тестов
+│       └── java/
+│           └── com/
+│               └── qa/
+│                   └── tests/
+│                       ├── level1/
+│                       │   └── QaLevel1Test.java  # API тесты для уровня 1
+│                       ├── level2/
+│                       │   └── QaLevel2Test.java  # API тесты для уровня 2
+│                       └── level3/
+│                           └── QaLevel3Test.java  # API тесты для уровня 3
+│                       └── ProductClient.java      # Общий клиент для взаимодействия с API
+│                       └── TestDataGenerator.java  # Генератор тестовых данных
+│       └── resources/                     # Ресурсы, необходимые для тестов (например, конфигурации для Allure)
+├── Dockerfile                             # Конфигурация Docker образа для запуска приложения
+├── pom.xml                                # Maven конфигурация: зависимости и настройки
+└── testing.xml                            # TestNG конфигурация для организации тестов и отчетности
+                                                          

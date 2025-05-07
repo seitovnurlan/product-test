@@ -4,13 +4,12 @@ import io.qameta.allure.*;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tests.ProductClient;
-import model.Product;
+import io.restassured.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -37,9 +36,8 @@ public class QaLevel3Test {
         }
 
         LOGGER.info("Проверяем, что массовое удаление срабатывает");
-        productClient.deleteAllProducts()
-                .then()
-                .statusCode(anyOf(is(200), is(204)));
+        Response response = productClient.deleteAllProducts();
+        response.then().statusCode(anyOf(is(200), is(204)));
     }
 
     @Test(description = "Массовое удаление запрещено при >= 10 продуктах")
@@ -52,9 +50,8 @@ public class QaLevel3Test {
         }
 
         LOGGER.info("Пробуем массово удалить — ожидаем ошибку");
-        productClient.deleteAllProducts()
-                .then()
-                .statusCode(400)
+        Response response = productClient.deleteAllProducts();
+        response.then().statusCode(400)
                 .body("message", containsString("Cannot delete more than"));
     }
 
@@ -76,15 +73,13 @@ public class QaLevel3Test {
 
         if (today == DayOfWeek.SUNDAY) {
             LOGGER.info("Воскресенье — проверяем, что продукт создать нельзя (пример)");
-            productClient.createProduct("SundayProduct", 50.0, 9999)
-                    .then()
-                    .statusCode(400)
+            Response response = productClient.createProduct("SundayProduct", 50.0, 9999);
+            response.then().statusCode(400)
                     .body("message", containsString("not allowed on Sunday"));
         } else {
             LOGGER.info("Не воскресенье — продукт должен создаться успешно");
-            productClient.createProduct("WeekProduct", 50.0, 9998)
-                    .then()
-                    .statusCode(201);
+            Response response = productClient.createProduct("WeekProduct", 50.0, 9998);
+            response.then().statusCode(201);
         }
     }
 }
