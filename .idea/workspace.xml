@@ -5,17 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55b05099-3f3e-46b4-b54f-9894b494ee9a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/domain/model/Product.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/ProductClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/ProductClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel1Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel1Test.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel2Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel2Test.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel3Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel3Test.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/utils/MockTimeProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/utils/MockTimeProvider.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,23 +48,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml.executor": "Run",
-    "TestNG.QaLevel1Test.executor": "Run",
-    "TestNG.UserApiTest.executor": "Run",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.19885057",
-    "settings.editor.selected.configurable": "build.tools"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG.QaLevel1Test.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG.UserApiTest.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/nurlanseitov/IdeaProjects/product-test&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.19885057&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/java" />

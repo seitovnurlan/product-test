@@ -1,4 +1,4 @@
-package tests.api;
+package org.tests;
 
 import io.qameta.allure.*;
 import domain.model.Product;

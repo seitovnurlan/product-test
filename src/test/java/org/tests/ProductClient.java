@@ -9,6 +9,8 @@ import domain.model.Product;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
+import java.util.List;
+
 /**
  * REST-клиент для работы с сущностью Product через API.
  * Инкапсулирует все взаимодействия с эндпоинтами, обеспечивает повторное использование.
@@ -17,47 +19,56 @@ public class ProductClient {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductClient.class);
 
-    private static final String BASE_URI = "http://localhost:8188/products";
+    // ⚠️ Используется NodePort 31494 — его можно заменить при изменении манифеста или использовании port-forward
+    private static final String BASE_URI = "http://localhost:31494/products";
 
     @Step("Создание продукта: {product}")
     public Response createProduct(Product product) {
-        logger.info("Отправка POST-запроса на создание продукта: {}", product);
-        return given()
+        String url = BASE_URI;
+        logger.info("POST → {}", url);
+        logger.info("Тело запроса: {}", product);
+
+        Response response = given()
                 .contentType(JSON)
                 .body(product)
-                .post(BASE_URI)
+                .post(url)
                 .thenReturn();
+
+        logResponse(response);
+        return response;
     }
 
     @Step("Массовое создание продуктов")
     public void createProductBatch(Product[] products) {
-        logger.info("Начинаем массовое создание продуктов: {}", products.length);
+        logger.info("Начинаем массовое создание {} продуктов", products.length);
 
         for (Product product : products) {
             try {
-                // Для каждого продукта вызываем метод createProduct
                 Response response = createProduct(product);
-                logger.info("Продукт успешно создан: {}", product.getId());
-                // Можно добавить дополнительную логику, например, обработку ответа (response)
+                logger.info("Продукт создан с ID: {}", product.getId());
             } catch (Exception e) {
-                logger.error("Ошибка при создании продукта с ID {}: {}", product.getId(), e.getMessage());
-                // Логируем ошибку, если создание одного из продуктов не удалось
-                throw new RuntimeException("Ошибка при массовом создании продуктов: " + e.getMessage(), e);
+                logger.error("❌ Ошибка при создании продукта с ID {}: {}", product.getId(), e.getMessage());
+                throw new RuntimeException("Ошибка при массовом создании продуктов", e);
             }
         }
     }
 
     @Step("Получение всех продуктов")
     public Response getAllProductsResponse() {
-        logger.info("Выполняется GET-запрос на получение всех продуктов");
-        return given()
+        String url = BASE_URI;
+        logger.info("GET → {}", url);
+
+        Response response = given()
                 .accept(JSON)
-                .get(BASE_URI)
+                .get(url)
                 .thenReturn();
+
+        logResponse(response);
+        return response;
     }
 
     @Step("Получение всех продуктов (в виде списка)")
-    public java.util.List<Product> getAllProducts() {
+    public List<Product> getAllProducts() {
         return getAllProductsResponse()
                 .then()
                 .statusCode(200)
@@ -68,36 +79,65 @@ public class ProductClient {
 
     @Step("Получение продукта по ID: {id}")
     public Response getProductById(long id) {
-        logger.info("Запрос продукта по ID: {}", id);
-        return given()
+        String url = BASE_URI + "/" + id;
+        logger.info("GET → {}", url);
+
+        Response response = given()
                 .accept(JSON)
-                .get(BASE_URI + "/" + id)
+                .get(url)
                 .thenReturn();
+
+        logResponse(response);
+        return response;
     }
 
     @Step("Удаление продукта по ID: {id}")
     public Response deleteProduct(long id) {
-        logger.info("Удаление продукта с ID: {}", id);
-        return given()
-                .delete(BASE_URI + "/" + id)
+        String url = BASE_URI + "/" + id;
+        logger.info("DELETE → {}", url);
+
+        Response response = given()
+                .delete(url)
                 .thenReturn();
+
+        logResponse(response);
+        return response;
     }
 
     @Step("Массовое удаление всех продуктов")
     public Response deleteAllProducts() {
-        logger.info("Отправка DELETE-запроса на массовое удаление");
-        return given()
-                .delete(BASE_URI)
+        String url = BASE_URI;
+        logger.info("DELETE (bulk) → {}", url);
+
+        Response response = given()
+                .delete(url)
                 .thenReturn();
+
+        logResponse(response);
+        return response;
     }
 
     @Step("Обновление продукта: {product}")
     public Response updateProduct(Product product) {
-        logger.info("PUT-запрос на обновление продукта: {}", product);
-        return given()
+        String url = BASE_URI;
+        logger.info("PUT → {}", url);
+        logger.info("Тело запроса: {}", product);
+
+        Response response = given()
                 .contentType(JSON)
                 .body(product)
-                .put(BASE_URI)
+                .put(url)
                 .thenReturn();
+
+        logResponse(response);
+        return response;
+    }
+
+    /**
+     * Утилитный метод логирования тела ответа
+     */
+    private void logResponse(Response response) {
+        logger.info("Код ответа: {}", response.getStatusCode());
+        logger.info("Тело ответа: {}", response.getBody().asPrettyString());
     }
 }

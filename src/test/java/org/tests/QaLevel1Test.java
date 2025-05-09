@@ -20,7 +20,7 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("QA1-01")
     public void testEvenIdUnavailable() {
-        int evenId = 1002;
+        int evenId = 2;
         logger.info("Проверка запрета на получение продукта с чётным ID: {}", evenId);
         try {
             var response = productClient.getProductById(evenId);
@@ -35,7 +35,7 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("QA1-02")
     public void testUpdateDivisibleByThreeIdBlocked() {
-        int id = 999;
+        int id = 3;
         logger.info("Проверка запрета на обновление продукта с ID, делящимся на 3: {}", id);
         try {
             var update = new Product("Updated", 200.0, id);
