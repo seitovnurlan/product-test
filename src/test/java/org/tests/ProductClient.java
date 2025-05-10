@@ -20,7 +20,7 @@ public class ProductClient {
     private static final Logger logger = LoggerFactory.getLogger(ProductClient.class);
 
     // ⚠️ Используется NodePort 31494 — его можно заменить при изменении манифеста или использовании port-forward
-    private static final String BASE_URI = "http://localhost:31494/products";
+    private static final String BASE_URI = "http://localhost:31494/api/products";
 
     @Step("Создание продукта: {product}")
     public Response createProduct(Product product) {
