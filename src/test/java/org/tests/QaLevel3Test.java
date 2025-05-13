@@ -1,5 +1,6 @@
 package org.tests;
 
+import client.ProductClient;
 import io.qameta.allure.*;
 import domain.model.Product;
 import org.assertj.core.api.Assertions;
@@ -7,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import io.restassured.response.Response;
-
 
 import java.util.concurrent.TimeUnit;
 

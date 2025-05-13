@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import utils.MockTimeProvider;
-import org.tests.ProductClient;
+import client.ProductClient;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;

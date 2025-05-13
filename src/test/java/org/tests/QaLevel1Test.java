@@ -3,7 +3,7 @@ package org.tests;
 import io.qameta.allure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tests.ProductClient;
+import client.ProductClient;
 import domain.model.Product;
 import org.testng.annotations.Test;
 
@@ -20,7 +20,7 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("QA1-01")
     public void testEvenIdUnavailable() {
-        int evenId = 2;
+        int evenId = 2; //Негативный, Позитивный - 3
         logger.info("Проверка запрета на получение продукта с чётным ID: {}", evenId);
         try {
             var response = productClient.getProductById(evenId);

@@ -1,4 +1,4 @@
-package org.tests;
+package client;
 
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
@@ -140,4 +140,11 @@ public class ProductClient {
         logger.info("Код ответа: {}", response.getStatusCode());
         logger.info("Тело ответа: {}", response.getBody().asPrettyString());
     }
+
+//    public Product createProductWithId(int id) {
+//        Product p = new Product("Test" + id, 10.0, id);
+//        createProduct(p);
+//        return p;
+//    }
+
 }
