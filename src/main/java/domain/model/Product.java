@@ -3,9 +3,9 @@ package domain.model;
 public class Product {
     private String name;
     private double price;
-    private int id;
+    private Integer id;
 
-    public Product(String name, double price, int id) {
+    public Product(String name, double price, Integer id) {
         this.name = name;
         this.price = price;
         this.id = id;

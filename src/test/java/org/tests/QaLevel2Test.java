@@ -1,204 +1,137 @@
 package org.tests;
 
+import data.TestDataSeeder;
 import io.qameta.allure.*;
 import domain.model.Product;
 import org.assertj.core.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import utils.MockTimeProvider;
 import client.ProductClient;
+import utils.TestUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
+import java.util.List;
+import static org.hamcrest.Matchers.equalTo;
+import static org.testng.Assert.assertEquals;
 
-@Epic("Тестирование уровня QA Level 2")
+@Epic("Тестирование уровня QA Level 2 – Расширенные проверки")
 @Feature("Проверка обработки ошибок при создании, удалении и валидации продуктов")
-public class QaLevel2Test {
+public class QaLevel2Test extends BaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(QaLevel2Test.class);
 
     private final ProductClient productClient = new ProductClient();
-    private final MockTimeProvider mockTimeProvider = new MockTimeProvider();
+    private List<Integer> productIds;
+    private final TestDataSeeder seeder = new TestDataSeeder();
 
-    // Искусственная пауза для имитации задержек в продакшене
-    private void artificialDelay() {
-        try {
-            TimeUnit.MILLISECONDS.sleep(200); // Задержка 200 мс
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            logger.warn("Задержка была прервана: {}", e.getMessage());
-        }
+    @BeforeClass
+    public void setup() {
+        logger.info("Сидирование мок-данных перед тестами уровня 2");
+        seeder.seedAll();
+        productIds = seeder.getCreatedProductIds();
+        logger.info("Создано {} продуктов. ID: {}", productIds.size(), productIds);
     }
 
-    private boolean isWeekend() {
-        DayOfWeek today = LocalDateTime.now().getDayOfWeek();
-        return today == DayOfWeek.SATURDAY || today == DayOfWeek.SUNDAY;
-    }
-
-    @Test(description = "Ошибка: Чётный ID")
+    @Test(description = "Обновления запрещены ночью (22:00–06:00)")
     @Severity(SeverityLevel.CRITICAL)
-    @Issue("BUG-001")
-    @Description("Проверка обработки ошибки при создании продукта с чётным ID")
-    public void testEvenIdError() {
-        if (isWeekend()) {
-            logger.info("Пропущен тест на чётный ID — выходной день");
-            return;
-        }
+    @Issue("BUG-QA2-01")
+    public void testUpdateForbiddenAtNight() {
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 23, 0));
+        int id = productIds.get(0);
+        Product update = seeder.generateProduct();
 
-        Product product = new Product("Чётный ID", 199.99, 2);
-        logger.info("Проверка чётного ID: {}", product.getId());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка при чётном ID");
-        } catch (Exception e) {
-            logger.error("Ошибка при создании продукта: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Even ID error");
-        }
+        var response = productClient.updateProduct(id, update);
+        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA2-01");
     }
 
-    @Test(description = "Ошибка: Цена делится на 3")
-    @Severity(SeverityLevel.NORMAL)
-    @Issue("BUG-002")
-    @Description("Проверка обработки ошибки, когда цена продукта делится на 3")
-    public void testPriceDivisibleBy3() {
-        Product product = new Product("Цена кратна 3", 300.0, 5);
-        logger.info("Проверка цены, делящейся на 3: {}", product.getPrice());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка при цене, делящейся на 3");
-        } catch (Exception e) {
-            logger.warn("Ожидаемая ошибка: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Price divisible by 3 error");
-        }
-    }
-
-    @Test(description = "Ошибка: Простое число в ID")
-    @Severity(SeverityLevel.MINOR)
-    @Issue("BUG-003")
-    @Description("Проверка обработки ошибки при ID, являющемся простым числом")
-    public void testPrimeIdError() {
-        Product product = new Product("Простое число ID", 450.0, 7);
-        logger.info("Проверка простого ID: {}", product.getId());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка при простом ID");
-        } catch (Exception e) {
-            logger.warn("Поймана ошибка: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Prime number error");
-        }
-    }
-
-    @Test(description = "Ошибка: Превышение лимита цены")
-    @Severity(SeverityLevel.NORMAL)
-    @Issue("BUG-004")
-    @Description("Проверка обработки ошибки при превышении лимита цены")
-    public void testPriceLimitExceeded() {
-        Product product = new Product("Слишком дорогой", 9999.99, 10);
-        logger.info("Проверка лимита цены: {}", product.getPrice());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка при превышении лимита цены");
-        } catch (Exception e) {
-            logger.error("Ошибка создания дорогого продукта: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Price limit exceeded");
-        }
-    }
-
-    @Test(description = "Ошибка: Нарушение временного ограничения")
-    @Severity(SeverityLevel.MINOR)
-    @Issue("BUG-005")
-    @Description("Проверка ошибки, связанной с временем выполнения")
-    public void testTimeConstraintError() {
-        mockTimeProvider.setCurrentTime("2025-01-01T00:00:00");
-        Product product = new Product("Ночное создание", 150.0, 3);
-
-        logger.info("Проверка временного ограничения: {}", mockTimeProvider.getCurrentTime());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка по временным условиям");
-        } catch (Exception e) {
-            logger.warn("Поймана временная ошибка: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Time constraint error");
-        }
-    }
-
-    @Test(description = "Ошибка: Невозможность удаления")
+    @Test(description = "Удаления запрещены по понедельникам до 09:00")
     @Severity(SeverityLevel.CRITICAL)
-    @Issue("BUG-006")
-    @Description("Проверка ошибки при удалении продукта")
-    public void testProductDeletionError() {
-        Product product = new Product("Удаляемый продукт", 100.0, 8);
+    @Issue("BUG-QA2-02")
+    public void testDeleteForbiddenOnMondayMorning() {
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 2, 8, 30)); // Понедельник
+        int id = productIds.get(1);
 
-        logger.info("Проверка удаления продукта ID {}", product.getId());
-
-        artificialDelay();
-
-        try {
-            productClient.deleteProduct(product.getId());
-            Assertions.fail("Ожидалась ошибка удаления");
-        } catch (Exception e) {
-            logger.warn("Ошибка удаления: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Product deletion error");
-        }
+        var response = productClient.deleteProduct(id);
+        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA2-02");
     }
 
-    @Test(description = "Ошибка: Цена ниже допустимой")
+    @Test(description = "Окно обслуживания: каждую 5-ю минуту и если секунды < 30")
     @Severity(SeverityLevel.NORMAL)
-    @Issue("BUG-007")
-    @Description("Проверка ошибки, если цена продукта слишком низкая")
-    public void testPriceBelowMinimum() {
-        Product product = new Product("Слишком дёшево", 0.0, 12);
+    @Issue("BUG-QA2-03")
+    public void testMaintenanceWindowReturns503() {
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 12, 5, 10));
+        int id = productIds.get(2);
 
-        logger.info("Проверка минимальной цены: {}", product.getPrice());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка при нулевой цене");
-        } catch (Exception e) {
-            logger.warn("Ошибка создания продукта: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Price below minimum limit");
-        }
+        var response = productClient.getProductById(id);
+        TestUtils.assertKnownIssueOrExpected(response, 503, "BUG-QA2-03");
     }
 
-    @Test(description = "Ошибка: Массовое создание продуктов")
-    @Severity(SeverityLevel.BLOCKER)
-    @Issue("BUG-008")
-    @Description("Проверка ошибки при создании продуктов в пакете")
-    public void testBatchCreationError() {
-        Product[] batch = {
-                new Product("Batch 1", 100.0, 14),
-                new Product("Batch 2", 150.0, 15)
-        };
+    @Test(description = "В воскресенье утром доступны только ID > 1000")
+    @Severity(SeverityLevel.NORMAL)
+    @Issue("BUG-QA2-04")
+    public void testSundayMorningAccessOnlyForHighIds() {
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 8, 0)); // Воскресенье
 
-        logger.info("Проверка пакетного создания продуктов: {} штук", batch.length);
+        var lowIdResponse = productClient.getProductById(900);
+        TestUtils.assertKnownIssueOrExpected(lowIdResponse, 403, "BUG-QA2-04");
 
-        artificialDelay();
+        var highIdResponse = productClient.getProductById(1001);
+        assertEquals(highIdResponse.getStatusCode(), 200);
+    }
 
-        try {
-            productClient.createProductBatch(batch);
-            Assertions.fail("Ожидалась ошибка при массовом создании");
-        } catch (Exception e) {
-            logger.error("Ошибка пакетного создания: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Batch creation error");
+    @Test(description = "Названия не могут содержать спецсимволы (!@#...)")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA2-05")
+    public void testNameWithSpecialCharactersIsRejected() {
+        Product product = seeder.generateProduct();
+        product.setTitle("Invalid@Name!");
+
+        var response = productClient.createProduct(product);
+        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA2-05");
+    }
+
+    @Test(description = "Названия-палиндромы зарезервированы")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA2-06")
+    public void testPalindromeNameConflict() {
+        Product product = seeder.generateProduct();
+        product.setTitle("racecar");
+
+        var response = productClient.createProduct(product);
+        TestUtils.assertKnownIssueOrExpected(response, 409, "BUG-QA2-06");
+    }
+
+    @Test(description = "Не более 5 операций с одним и тем же названием")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA2-07")
+    public void testTooManyRequestsWithSameName() {
+        String commonName = "Gadget";
+        Product product = seeder.generateProduct();
+        product.setTitle(commonName);
+
+        for (int i = 0; i < 5; i++) {
+            var response = productClient.createProduct(product);
+            assertEquals(response.getStatusCode(), 201);
         }
+
+        var response = productClient.createProduct(product);
+        TestUtils.assertKnownIssueOrExpected(response, 429, "BUG-QA2-07");
+    }
+
+    @Test(description = "Цены не могут содержать одинаковые цифры")
+    @Severity(SeverityLevel.NORMAL)
+    @Issue("BUG-QA2-08")
+    public void testPriceWithRepeatingDigitsIsRejected() {
+        Product product = seeder.generateProduct();
+        product.setPrice(111.11);
+
+        var response = productClient.createProduct(product);
+        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA2-08");
     }
 }

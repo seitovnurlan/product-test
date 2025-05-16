@@ -78,7 +78,7 @@ public class ProductClient {
     }
 
     @Step("Получение продукта по ID: {id}")
-    public Response getProductById(long id) {
+    public Response getProductById(Integer id) {
         String url = BASE_URI + "/" + id;
         logger.info("GET → {}", url);
 
@@ -92,11 +92,27 @@ public class ProductClient {
     }
 
     @Step("Удаление продукта по ID: {id}")
-    public Response deleteProduct(long id) {
+    public Response deleteProduct(Integer id) {
         String url = BASE_URI + "/" + id;
         logger.info("DELETE → {}", url);
 
         Response response = given()
+                .delete(url)
+                .thenReturn();
+
+        logResponse(response);
+        return response;
+    }
+
+    @Step("Массовое удаление продуктов по ID: {ids}")
+    public Response deleteProducts(List<Integer> ids) {
+        String url = BASE_URI;
+        logger.info("DELETE (bulk by ID) → {} | Payload: {}", url, ids);
+
+        Response response = given()
+                .contentType(JSON)
+                .body(ids)
+                .when()
                 .delete(url)
                 .thenReturn();
 
