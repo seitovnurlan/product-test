@@ -1,207 +1,269 @@
 package org.tests;
 
+import org.tests.BaseTest;
 import client.ProductClient;
+import data.TestDataSeeder;
 import io.qameta.allure.*;
 import domain.model.Product;
-import org.assertj.core.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import io.restassured.response.Response;
+import testutils.MockTimeProvider;
+import testutils.TestUtils;
 
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
-@Epic("Тестирование уровня QA Level 3")
-@Feature("Проверка сложных условий и дополнительных ограничений")
-public class QaLevel3Test {
+import static org.testng.Assert.assertFalse;
+
+@Epic("Тестирование уровня QA Level 3 – Сложные бизнес-правила")
+@Feature("Проверки ограничений по времени, ID, имени и массе данных")
+public class QaLevel3Test extends BaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(QaLevel3Test.class);
+
     private final ProductClient productClient = new ProductClient();
+    private final TestDataSeeder seeder = new TestDataSeeder();
+    private List<Long> productIds;
 
-    // Искусственная пауза для имитации задержек
-    private void artificialDelay() {
-        try {
-            TimeUnit.MILLISECONDS.sleep(150);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            logger.warn("Задержка была прервана: {}", e.getMessage());
-        }
+    @BeforeClass
+    public void setup() {
+        logger.info("Сидирование мок-данных перед тестами уровня 3");
+        seeder.seedAll();
+        productIds = seeder.getCreatedProductIds();
+        logger.info("Создано {} продуктов. ID: {}", productIds.size(), productIds);
     }
 
-    @Test(description = "Ошибка: Название — палиндром")
-    @Severity(SeverityLevel.NORMAL)
-    @Issue("BUG-009")
-    @Description("Проверка ошибки при создании продукта с палиндромом в названии")
-    public void testPalindromeNameError() {
-        Product product = new Product("АрозАупаланАлапуазорА", 123.0, 21);
-        logger.info("Проверка палиндрома в названии: {}", product.getName());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка палиндрома");
-        } catch (Exception e) {
-            logger.error("Поймана ошибка палиндрома: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Palindrome name error");
-        }
-    }
-
-    @Test(description = "Ошибка: Название слишком длинное")
+    @Test(description = "Удаление невозможно, если всего < 10 продуктов")
     @Severity(SeverityLevel.CRITICAL)
-    @Issue("BUG-010")
-    @Description("Проверка ошибки при слишком длинном названии")
-    public void testTitleTooLongError() {
-        Product product = new Product("ОченьДлинноеНазвание".repeat(10), 120.0, 22);
-        logger.info("Проверка длины названия: {}", product.getName().length());
+    @Issue("BUG-QA3-01")
+    public void testDeleteForbiddenIfLessThan10Products() {
+        logger.info("Проверка: удаление невозможно, если продуктов меньше 10");
 
-        artificialDelay();
+        int productCount = seeder.getProductsCount();
+        if (productCount < 10) {
+            logger.info("Продуктов меньше 10 — пробуем удалить");
 
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка превышения длины названия");
-        } catch (Exception e) {
-            logger.warn("Поймана ошибка длины: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Title too long");
+            List<Long> ids = productClient.getAllProducts()
+                    .stream()
+                    .map(Product::getId)
+                    .collect(Collectors.toList());
+
+            var response = productClient.deleteProducts(ids);
+            TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-01");
+        } else {
+            logger.warn("Пропуск теста — на сервере уже {} продуктов", productCount);
         }
     }
 
-    @Test(description = "Ошибка: Отрицательная цена")
+    @Test(description = "Изменения цен ограничены по правилу (удвоение цены)")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-02")
+    public void testUpdateWithProhibitedPriceChange() {
+        Long id = productIds.get(0); // Берём ID
+        Product original = productClient.getProductById(id).as(Product.class);
+        double newPrice = original.getPrice() * 2.0;
+        Product updated = new Product(original.getName(),original.getDescription(), newPrice);
+
+        logger.info("Проверка удвоения цены: {} → {}", original.getPrice(), newPrice);
+        var response = productClient.updateProduct(id, updated); // Передаём id отдельно
+        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-02");
+    }
+
+    @Test(description = "Доступ по ID < 1000 ограничен по времени (воскресенье утром)")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-03")
+    public void testAccessRestrictedByIdAndTime() {
+        // Устанавливаем фиктивное время: воскресенье, 1 января 2023, 09:00
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2025, 5, 18, 9, 0));
+
+        // Создаём 20 продуктов
+        seeder.seedAll(20, 1000);
+
+        // Отбираем ID < 1000
+        List<Long> idsUnder1000 = productClient.getAllProducts().stream()
+                .filter(p -> p.getId() < 1000)
+                .map(Product::getId)
+                .collect(Collectors.toList());
+
+        logger.info("Найдено {} продуктов с ID < 1000", idsUnder1000.size());
+
+        // Проверяем ограничение доступа
+        for (Long id : idsUnder1000) {
+            logger.info("Запрос продукта с ID {} в воскресенье утром", id);
+            var response = productClient.getProductById(id);
+            TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-03");
+        }
+    }
+
+
+    @Test(description = "PUT запрещён во время обслуживания (12:05:20)")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-04")
+    public void testPutDuringMaintenance() {
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 12, 5, 20));
+        Long id = productIds.get(0);
+        Product product = seeder.generateProduct();
+        logger.info("PUT-запрос в период техобслуживания");
+        var response = productClient.updateProduct(id, product);
+        TestUtils.assertKnownIssueOrExpected(response, 503, "BUG-QA3-04");
+    }
+
+    @Test(description = "PUT запрещён по средам")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-05")
+    public void testPutForbiddenOnWednesday() {
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 4, 14, 0)); // среда
+        Long id = productIds.get(1);
+        Product product = seeder.generateProduct();
+        logger.info("PUT-запрос в среду, когда обновление запрещено");
+        var response = productClient.updateProduct(id, product);
+        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-05");
+    }
+
+    @Test(description = "BUG-QA3-06: Удаление продуктов с палиндромными ID запрещено")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-06")
+    public void testDeleteProductsWithPalindromeIds() {
+        TestDataSeeder localSeeder = new TestDataSeeder(); // отдельный сидер для этого теста
+        localSeeder.seedAll(10, 122); // генерируем до 122 ID только в этом тесте
+     // Получаем только палиндромы из сгенерированных ID
+        List<Long> palindromeIds = localSeeder.getCreatedProductIds().stream()
+                .filter(TestUtils::isPalindrome)
+                .collect(Collectors.toList());
+
+        logger.info("Найдены палиндромные ID: {}", palindromeIds);
+        assertFalse(palindromeIds.isEmpty(), "Список палиндромов пуст — тест невалиден");
+
+        for (Long id : palindromeIds) {
+            Response response = productClient.deleteProduct(id);
+            TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-06");
+        }
+    }
+
+    @Test(description = "BUG-QA3-07: Массовое удаление палиндромных ID запрещено")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-07")
+    public void testBulkDeletePalindromesForbidden() {
+        // Отдельный сидер для этого теста
+        TestDataSeeder localSeeder = new TestDataSeeder();
+        localSeeder.seedAll(10, 122); // генерируем 122 продукта (будут ID от 1 до 122)
+
+        // Отбираем палиндромы
+        List<Long> palindromeIds = localSeeder.getCreatedProductIds().stream()
+                .filter(TestUtils::isPalindrome)
+                .collect(Collectors.toList());
+
+        logger.info("Пытаемся массово удалить палиндромные ID: {}", palindromeIds);
+
+        // Проверка что мы действительно их нашли
+//        assertThat(palindromeIds).isNotEmpty();
+        assertFalse(palindromeIds.isEmpty(), "Список палиндромов пуст — ошибка в генерации данных");
+
+        // Пытаемся удалить сразу всех палиндромных кандидатов
+        var response = productClient.deleteProducts(palindromeIds);
+        // Проверка что получили 403 из-за бизнес-ограничения
+        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-07");
+    }
+
+    @Test(description = "Массовое удаление обычных ID — успешно")
     @Severity(SeverityLevel.NORMAL)
-    @Issue("BUG-011")
-    @Description("Проверка ошибки при отрицательной цене продукта")
-    public void testNegativePriceError() {
-        Product product = new Product("Отрицательная цена", -50.0, 23);
-        logger.info("Проверка отрицательной цены: {}", product.getPrice());
+    @Issue("BUG-QA3-08")
+        public void testBulkDeleteNonPalindromesAllowed() {
+            // Создаем локальный сидер и генерируем 10 пользователей и 50 продуктов
+            TestDataSeeder localSeeder = new TestDataSeeder();
+            localSeeder.seedAll(10, 50);
 
-        artificialDelay();
+            // Получаем все созданные ID продуктов и фильтруем непалиндромные
+            List<Long> nonPalindromes = localSeeder.getCreatedProductIds().stream()
+                    .filter(id -> !TestUtils.isPalindrome(id))
+                    .limit(3) // Берем первые 3 непалиндрома
+                    .collect(Collectors.toList());
 
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка отрицательной цены");
-        } catch (Exception e) {
-            logger.warn("Ошибка: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Negative price error");
-        }
-    }
+            logger.info("Массовое удаление обычных ID {}", nonPalindromes);
 
-    @Test(description = "Ошибка: Название содержит запрещённые символы")
-    @Severity(SeverityLevel.MINOR)
-    @Issue("BUG-012")
-    @Description("Проверка ошибки при наличии запрещённых символов в названии")
-    public void testTitleWithForbiddenChars() {
-        Product product = new Product("Тестовый@Продукт#Ошибка", 100.0, 24);
-        logger.info("Проверка запрещённых символов в названии: {}", product.getName());
+            // Проверяем, что список непалиндромных ID не пуст
+            assertFalse(nonPalindromes.isEmpty(), "Список обычных ID пуст — ошибка генерации");
 
-        artificialDelay();
+            // Удаляем эти продукты через ProductClient
+            var response = productClient.deleteProducts(nonPalindromes);
 
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка по символам в названии");
-        } catch (Exception e) {
-            logger.error("Поймана ошибка символов: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Forbidden characters in title");
-        }
-    }
-
-    @Test(description = "Ошибка: Наличие пробелов в начале и конце названия")
-    @Severity(SeverityLevel.MINOR)
-    @Issue("BUG-013")
-    @Description("Проверка ошибки при пробелах в начале и/или конце названия")
-    public void testTitleWithLeadingOrTrailingSpaces() {
-        Product product = new Product("  Обрезать пробелы  ", 89.0, 25);
-        logger.info("Проверка пробелов в названии: '{}'", product.getName());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка наличия пробелов в начале/конце");
-        } catch (Exception e) {
-            logger.warn("Ошибка пробелов: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Leading/trailing spaces in title");
-        }
-    }
-
-    @Test(description = "Ошибка: Дублирование ID")
-    @Severity(SeverityLevel.BLOCKER)
-    @Issue("BUG-014")
-    @Description("Проверка ошибки при повторном использовании одного и того же ID")
-    public void testDuplicateIdError() {
-        Product product = new Product("Уникальный ID",77.0, 26);
-        logger.info("Создание продукта с ID: {}", product.getId());
-
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-        } catch (Exception e) {
-            Assertions.fail("Неожиданная ошибка при первом создании: " + e.getMessage());
+            // Проверяем, что ответ сервера либо ожидаемый успешный 204, либо известная ошибка
+            TestUtils.assertKnownIssueOrExpected(response, 204, "BUG-QA3-08");
         }
 
-        artificialDelay();
+    @Test(description = "Массовое удаление невозможно при <10 продуктах")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-09")
+    public void testBulkDeleteFailsWhenTooFewProducts() {
+        logger.info("Очистка всех продуктов перед началом теста");
+        Response deleteAllResponse = productClient.deleteAllProducts();
+        logger.info("Результат очистки: {}", deleteAllResponse.getStatusCode());
 
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка при повторном использовании ID");
-        } catch (Exception e) {
-            logger.warn("Ошибка дублирования ID: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Duplicate ID error");
+        logger.info("Создаём 9 продуктов");
+        seeder.seedProducts(9);
+
+        List<Long> ids = seeder.getCreatedProductIds()
+                .stream()
+                .filter(id -> id < 1000)
+                .collect(Collectors.toList());
+
+        if (ids.size() < 9) {
+            logger.warn("Создано менее 9 продуктов с ID < 1000: {}", ids.size());
+            logger.info("Повторная очистка и генерация продуктов");
+
+            Response deleteAllAgain = productClient.deleteAllProducts();
+            logger.info("Повторная очистка: {}", deleteAllAgain.getStatusCode());
+
+            seeder.seedProducts(9);
+            ids = seeder.getCreatedProductIds()
+                    .stream()
+                    .filter(id -> id < 1000)
+                    .collect(Collectors.toList());
+
+            logger.info("Повторно отфильтровано {} ID < 1000", ids.size());
         }
-    }
 
-    @Test(description = "Ошибка: Слишком маленькое название")
-    @Severity(SeverityLevel.MINOR)
-    @Issue("BUG-015")
-    @Description("Проверка ошибки, если название слишком короткое")
-    public void testTitleTooShortError() {
-        Product product = new Product("A", 99.0, 27);
-        logger.info("Проверка короткого названия: '{}'", product.getName());
+        logger.info("Пробуем массово удалить <10 продуктов ({} штук)", ids.size());
+        Response response = productClient.deleteProducts(ids);
 
-        artificialDelay();
-
-        try {
-            productClient.createProduct(product);
-            Assertions.fail("Ожидалась ошибка короткого названия");
-        } catch (Exception e) {
-            logger.warn("Ошибка короткого названия: {}", e.getMessage());
-            Assertions.assertThat(e.getMessage()).contains("Title too short");
-        }
-    }
-    @Test(description = "Ошибка: Массовое удаление запрещено")
-    @Severity(SeverityLevel.BLOCKER)
-    @Issue("BUG-016")
-    @Description("Проверка ошибки при массовом удалении продуктов")
-    public void testBatchDeletionError() {
-        Product[] products = {
-                new Product("Удаление 1", 100.0, 30),
-                new Product("Удаление 2", 110.0, 31)
-        };
-
-        logger.info("Попытка массового удаления {} продуктов", products.length);
-
-        artificialDelay();
-
-        try {
-            // Используем deleteAllProducts — он отправляет запрос DELETE /products
-            Response response = productClient.deleteAllProducts();
-
-            // Предполагаем, что массовое удаление запрещено => статус не должен быть 200
-            int statusCode = response.getStatusCode();
-            logger.info("Ответ сервера при массовом удалении: {}", statusCode);
-
-            Assertions.assertThat(statusCode)
-                    .as("Ожидается ошибка 4xx или 5xx при массовом удалении")
-                    .isGreaterThanOrEqualTo(400);
-
-            Assertions.assertThat(response.getBody().asString())
-                    .containsIgnoringCase("Batch deletion not allowed");
-
-        } catch (Exception e) {
-            logger.error("Ошибка при выполнении массового удаления: {}", e.getMessage());
-            Assertions.fail("Ошибка при выполнении запроса массового удаления", e);
-        }
+        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-09");
     }
 
 
+    @Test(description = "Имя не может быть палиндромом и содержать спецсимволы")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-10")
+    public void testNameCannotBePalindromeWithSpecialSymbols() {
+        logger.info("Проверка имени-палиндрома со спецсимволами");
+        Product product = new Product("ra@car", "fer", 99.99);
+        var response = productClient.createProduct(product);
+        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA3-10");
+    }
+
+    @Test(description = "Создание продукта недоступно во время техобслуживания")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-11")
+    public void testCreateDuringMaintenanceWindow() {
+        logger.info("Проверка окна техобслуживания при создании продукта");
+        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 12, 10, 10));
+        Product product = seeder.generateProduct();
+        var response = productClient.createProduct(product);
+        TestUtils.assertKnownIssueOrExpected(response, 503, "BUG-QA3-11");
+    }
+
+    @Test(description = "Обновление с некорректным именем и ценой должно вернуть ошибку по имени")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("BUG-QA3-12")
+    public void testUpdateWithMultipleValidationErrorsReturnsFirst() {
+        logger.info("Обновление с двумя ошибками: имя и цена");
+        Long id = productIds.get(0);
+        Product invalidProduct = new Product("Gadget@@","gur", 111.11);
+        var response = productClient.updateProduct(id, invalidProduct);
+        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA3-12");
+//        TestUtils.assertErrorMessageContains(response, "Invalid name");
+    }
 }

@@ -148,7 +148,7 @@ product-test/
 ├── src/                                   # Основной исходный код
 │   ├── main/
 │   │   └── java/
-│   │       └── utils/
+│   │       └── testutils/
 │   │           ├── CommonUtils.java       # Общие утилиты для работы с тестами и данными
 │   │           └── MockDataGenerator.java # Генератор мок-данных для тестов
 │   └── test/                              # Папка для тестов
