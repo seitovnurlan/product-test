@@ -1,9 +1,7 @@
 package api;
 
 import io.qameta.allure.*;
-import org.json.JSONObject;
 import org.testng.annotations.Test;
-import utils.MockDataGenerator;
 import com.github.javafaker.Faker;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;

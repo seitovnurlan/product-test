@@ -3,9 +3,14 @@ package domain.model;
 public class Product {
     private String name;
     private double price;
-    private Integer id;
+    private Long id;
 
-    public Product(String name, double price, Integer id) {
+    public Product(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public Product(String name, double price, Long id) {
         this.name = name;
         this.price = price;
         this.id = id;
@@ -14,9 +19,9 @@ public class Product {
     // Геттеры и сеттеры
     public String getName() { return name; }
     public double getPrice() { return price; }
-    public int getId() { return id; }
+    public Long getId() { return id; }
 
     public void setName(String name) { this.name = name; }
     public void setPrice(double price) { this.price = price; }
-    public void setId(int id) { this.id = id; }
+    public void setId(Long id) { this.id = id; }
 }

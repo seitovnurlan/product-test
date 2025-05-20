@@ -1,4 +1,4 @@
-package utils;
+package testutils;
 
 import io.qameta.allure.Allure;
 import io.restassured.response.Response;
@@ -26,5 +26,10 @@ public class TestUtils {
             logger.error("Неожиданный ответ: код={}, тело={}", actual, body);
             fail("Unexpected response: " + actual + " instead of " + expectedCode);
         }
+    }
+
+    public static boolean isPalindrome(Long id) {
+        String str = String.valueOf(id);
+        return str.equals(new StringBuilder(str).reverse().toString());
     }
 }

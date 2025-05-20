@@ -47,7 +47,7 @@ jobs:
           sudo apt install -y ./google-chrome-stable_current_amd64.deb
 
       - name: Run Maven tests (headless)
-        run: mvn clean test -DsuiteXmlFile=testng.xml
+        run: mvn clean test -DsuiteXmlFile=E2E_suite.xml
 
       - name: Install Allure CLI
         run: sudo npm install -g allure-commandline --unsafe-perm=true

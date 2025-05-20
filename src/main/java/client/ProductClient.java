@@ -1,32 +1,35 @@
 package client;
 
+import domain.model.Product;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import domain.model.Product;
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
-import java.util.List;
-
 /**
- * REST-клиент для работы с сущностью Product через API.
- * Инкапсулирует все взаимодействия с эндпоинтами, обеспечивает повторное использование.
+ * REST-клиент для работы с сущностью Product.
+ * Отвечает за инкапсуляцию всех вызовов к API /api/products.
+ * Используется во всех тестах уровня QA1–QA3.
  */
 public class ProductClient {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductClient.class);
 
-    // ⚠️ Используется NodePort 31494 — его можно заменить при изменении манифеста или использовании port-forward
-    private static final String BASE_URI = "http://localhost:31494/api/products";
+    // Базовый URL можно переопределить через VM-параметры или .env переменные
+    private static final String BASE_URI = System.getProperty("api.base.url", "http://localhost:31494/api/products");
 
+    /**
+     * Универсальный метод создания продукта через API
+     */
     @Step("Создание продукта: {product}")
     public Response createProduct(Product product) {
         String url = BASE_URI;
-        logger.info("POST → {}", url);
-        logger.info("Тело запроса: {}", product);
+        logRequest("POST", url, product);
 
         Response response = given()
                 .contentType(JSON)
@@ -38,25 +41,26 @@ public class ProductClient {
         return response;
     }
 
+    /**
+     * Массовое создание продуктов. Ошибки логируются, не останавливают выполнение.
+     */
     @Step("Массовое создание продуктов")
     public void createProductBatch(Product[] products) {
-        logger.info("Начинаем массовое создание {} продуктов", products.length);
-
+        logger.info("⏳ Начинается массовое создание {} продуктов", products.length);
         for (Product product : products) {
             try {
                 Response response = createProduct(product);
-                logger.info("Продукт создан с ID: {}", product.getId());
+                logger.info("✅ Продукт создан: {}, код ответа: {}", product.getName(), response.getStatusCode());
             } catch (Exception e) {
-                logger.error("❌ Ошибка при создании продукта с ID {}: {}", product.getId(), e.getMessage());
-                throw new RuntimeException("Ошибка при массовом создании продуктов", e);
+                logger.error("❌ Ошибка при создании продукта {}: {}", product.getName(), e.getMessage());
             }
         }
     }
 
-    @Step("Получение всех продуктов")
+    @Step("Получение всех продуктов (Response)")
     public Response getAllProductsResponse() {
         String url = BASE_URI;
-        logger.info("GET → {}", url);
+        logRequest("GET", url, null);
 
         Response response = given()
                 .accept(JSON)
@@ -67,20 +71,20 @@ public class ProductClient {
         return response;
     }
 
-    @Step("Получение всех продуктов (в виде списка)")
+    @Step("Получение всех продуктов (List<Product>)")
     public List<Product> getAllProducts() {
         return getAllProductsResponse()
                 .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getList(".", Product.class);
+                .getList("content", Product.class);
     }
 
     @Step("Получение продукта по ID: {id}")
-    public Response getProductById(Integer id) {
+    public Response getProductById(Long id) {
         String url = BASE_URI + "/" + id;
-        logger.info("GET → {}", url);
+        logRequest("GET", url, null);
 
         Response response = given()
                 .accept(JSON)
@@ -92,9 +96,9 @@ public class ProductClient {
     }
 
     @Step("Удаление продукта по ID: {id}")
-    public Response deleteProduct(Integer id) {
+    public Response deleteProduct(Long id) {
         String url = BASE_URI + "/" + id;
-        logger.info("DELETE → {}", url);
+        logRequest("DELETE (by ID)", url, null);
 
         Response response = given()
                 .delete(url)
@@ -104,26 +108,26 @@ public class ProductClient {
         return response;
     }
 
-    @Step("Массовое удаление продуктов по ID: {ids}")
-    public Response deleteProducts(List<Integer> ids) {
+    @Step("Массовое удаление продуктов (bulk): {ids}")
+    public Response deleteProducts(List<Long> ids) {
         String url = BASE_URI;
-        logger.info("DELETE (bulk by ID) → {} | Payload: {}", url, ids);
+        logRequest("DELETE (bulk)", url, ids);
 
         Response response = given()
                 .contentType(JSON)
                 .body(ids)
                 .when()
-                .delete(url)
+                .request("DELETE", url) // REST Assured требует ручной вызов метода, если передаётся тело для DELETE
                 .thenReturn();
 
         logResponse(response);
         return response;
     }
 
-    @Step("Массовое удаление всех продуктов")
+    @Step("Удаление всех продуктов")
     public Response deleteAllProducts() {
         String url = BASE_URI;
-        logger.info("DELETE (bulk) → {}", url);
+        logRequest("DELETE (all)", url, null);
 
         Response response = given()
                 .delete(url)
@@ -133,11 +137,10 @@ public class ProductClient {
         return response;
     }
 
-    @Step("Обновление продукта: {product}")
-    public Response updateProduct(Product product) {
-        String url = BASE_URI;
-        logger.info("PUT → {}", url);
-        logger.info("Тело запроса: {}", product);
+    @Step("Обновление продукта по ID: {id} -> {product}")
+    public Response updateProduct(Long id, Product product) {
+        String url = BASE_URI + "/" + id; // Втсавляем ID в путь
+        logRequest("PUT", url, product);
 
         Response response = given()
                 .contentType(JSON)
@@ -149,18 +152,18 @@ public class ProductClient {
         return response;
     }
 
-    /**
-     * Утилитный метод логирования тела ответа
-     */
-    private void logResponse(Response response) {
-        logger.info("Код ответа: {}", response.getStatusCode());
-        logger.info("Тело ответа: {}", response.getBody().asPrettyString());
+    // 🔽 Утилитные методы логирования
+    private void logRequest(String method, String url, Object body) {
+        logger.info("➡️ {} {}", method, url);
+        if (body != null) {
+            logger.info("📦 Тело запроса: {}", body);
+        }
     }
 
-//    public Product createProductWithId(int id) {
-//        Product p = new Product("Test" + id, 10.0, id);
-//        createProduct(p);
-//        return p;
-//    }
-
+    private void logResponse(Response response) {
+        logger.info("⬅️ Код ответа: {}", response.getStatusCode());
+        if (response.getBody() != null && !response.getBody().asString().isBlank()) {
+            logger.info("📭 Тело ответа: {}", response.getBody().asPrettyString());
+        }
+    }
 }
