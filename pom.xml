@@ -122,13 +122,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
-<!--                <configuration>-->
-<!--                    <includes>-->
-<!--                        <include>**/QaLevel1Test.java</include>-->
-<!--                        <include>**/QaLevel2Test.java</include>-->
-<!--                        <include>**/QaLevel3Test.java</include>-->
-<!--                    </includes>-->
-<!--                </configuration>-->
             </plugin>
 
             <!-- Allure плагин -->
@@ -142,10 +135,10 @@
 
     <profiles>
         <profile>
-            <id>default-suite</id>
-            <activation>
+              <id>default-suite</id>
+              <activation>
                 <activeByDefault>true</activeByDefault>
-            </activation>
+              </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -154,8 +147,9 @@
                         <configuration>
                             <!-- allur.results.directory не нужен тут -->
                             <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/E2E-suite.xml</suiteXmlFile>
+                                <suiteXmlFile>src/test/resources/E2E_suite.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                            <testNGArtifactName>org.testng:testng</testNGArtifactName>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -172,8 +166,9 @@
                         <configuration>
                             <!-- allur.results.directory не нужен тут -->
                             <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/E2E-suite.xml</suiteXmlFile>
+                                <suiteXmlFile>src/test/resources/E2E_suite.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                            <testNGArtifactName>org.testng:testng</testNGArtifactName>
                         </configuration>
                     </plugin>
                 </plugins>
