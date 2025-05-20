@@ -164,6 +164,11 @@ public class ProductClient {
         logger.info("⬅️ Код ответа: {}", response.getStatusCode());
         if (response.getBody() != null && !response.getBody().asString().isBlank()) {
             logger.info("📭 Тело ответа: {}", response.getBody().asPrettyString());
+            if (response.getStatusCode() == 500) {
+                logger.error("‼️ Сервер вернул 500 — проверь бизнес-валидацию на бэке. Тело: {}", response.getBody());
+            }
+
         }
+
     }
 }

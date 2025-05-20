@@ -28,6 +28,7 @@ public class QaLevel1Test extends BaseTest {
 
     @BeforeClass
     public void setup() {
+//        seeder.clearSeededData();
         logger.info("Загрузка мок-данных перед тестами уровня 1");
         seeder.seedAll();
         productIds = seeder.getCreatedProductIds();
@@ -38,10 +39,12 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("BUG-QA1-01")
     public void testEvenIdIsUnavailable() {
-        Long evenId = productIds.stream().filter(id -> id % 2 == 0).findFirst()
-                .orElseThrow(() -> new RuntimeException("Не найден чётный ID среди созданных продуктов"));
+        Long evenId = productIds.stream()
+                .filter(id -> id % 2 == 0)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("❌ Не найден чётный ID среди сгенерированных продуктов"));
 
-        logger.info("Проверка недоступности продукта с чётным ID: {}", evenId);
+        logger.info("(Проверка недоступности продукта с чётным ID: {}", evenId);
         var response = productClient.getProductById(evenId);
         TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA1-01");
     }
@@ -50,11 +53,14 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("BUG-QA1-02")
     public void testUpdateForbiddenForIdDivisibleByThree() {
-        Long id = productIds.stream().filter(i -> i % 3 == 0).findFirst()
-                .orElseThrow(() -> new RuntimeException("Не найден ID кратный 3 среди созданных продуктов"));
+        Long id = productIds.stream().
+                filter(i -> i % 3 == 0)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("❌ Не найден ID кратный 3"));
 
-        logger.info("Проверка запрета обновления продукта с ID кратным 3: {}", id);
-        Product update = new Product("Updated name", 100);
+        Product update = new Product("Updated name","jur", 100);
+        logger.info("🔍 Проверка запрета обновления для ID {}, обновлённые данные: {}", id, update);
+
         var response = productClient.updateProduct(id, update);
         TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA1-02");
     }
@@ -76,8 +82,9 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("BUG-QA1-04")
     public void testCreateProductWithHighPriceIsForbidden() {
-        Product expensive = new Product("Expensive Product", 1500);
+        Product expensive = new Product("Expensive Product","fr", 1500);
         logger.info("Проверка создания продукта с завышенной ценой: {}", expensive);
+
         var response = productClient.createProduct(expensive);
         TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA1-04");
     }
@@ -86,9 +93,10 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("BUG-QA1-05")
     public void testDeleteProductWithPriceOver100IsForbidden() {
-        Product p = new Product("Pricey", 150);
-        int id = productClient.createProduct(p).jsonPath().getInt("id");
-        logger.info("Проверка удаления продукта с ценой {}: id={}", p.getPrice(), id);
+        Product product = new Product("Pricey","e", 150);
+        int id = productClient.createProduct(product).jsonPath().getInt("id");
+
+        logger.info("🔍 Попытка удалить продукт с ID {} и ценой {} (ожидается запрет)", id, product.getPrice());
         var response = productClient.deleteProduct((long) id);
         TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA1-05");
     }
@@ -97,10 +105,12 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Issue("BUG-QA1-06")
     public void testPriceChangeMoreThan500IsForbidden() {
-        Product original = new Product("Base", 100);
+        Product original = new Product("Base","r", 100);
         int id = productClient.createProduct(original).jsonPath().getInt("id");
-        Product updated = new Product("Base", 650);
+
+        Product updated = new Product("Base","e", 650);
         logger.info("Проверка обновления цены с превышением лимита более 500: id={}, {} -> {}", id, original.getPrice(), updated.getPrice());
+
         var response = productClient.updateProduct((long) id, updated);
         TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA1-06");
     }
@@ -109,6 +119,8 @@ public class QaLevel1Test extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @Issue("BUG-QA1-07")
     public void testMinimumDelayOf100ms() {
+        // Убедимся, что сидер отработал корректно
+        assertThat("Список созданных продуктов не должен быть пустым", productIds, is(not(empty())));
         Long id = productIds.get(0);
         logger.info("Проверка минимальной задержки операций: GET /products/{}", id);
 

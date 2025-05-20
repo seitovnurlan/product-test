@@ -66,7 +66,7 @@ public class QaLevel3Test extends BaseTest {
         Long id = productIds.get(0); // Берём ID
         Product original = productClient.getProductById(id).as(Product.class);
         double newPrice = original.getPrice() * 2.0;
-        Product updated = new Product(original.getName(), newPrice);
+        Product updated = new Product(original.getName(),original.getDescription(), newPrice);
 
         logger.info("Проверка удвоения цены: {} → {}", original.getPrice(), newPrice);
         var response = productClient.updateProduct(id, updated); // Передаём id отдельно
@@ -239,7 +239,7 @@ public class QaLevel3Test extends BaseTest {
     @Issue("BUG-QA3-10")
     public void testNameCannotBePalindromeWithSpecialSymbols() {
         logger.info("Проверка имени-палиндрома со спецсимволами");
-        Product product = new Product("ra@car", 99.99);
+        Product product = new Product("ra@car", "fer", 99.99);
         var response = productClient.createProduct(product);
         TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA3-10");
     }
@@ -261,7 +261,7 @@ public class QaLevel3Test extends BaseTest {
     public void testUpdateWithMultipleValidationErrorsReturnsFirst() {
         logger.info("Обновление с двумя ошибками: имя и цена");
         Long id = productIds.get(0);
-        Product invalidProduct = new Product("Gadget@@", 111.11);
+        Product invalidProduct = new Product("Gadget@@","gur", 111.11);
         var response = productClient.updateProduct(id, invalidProduct);
         TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA3-12");
 //        TestUtils.assertErrorMessageContains(response, "Invalid name");

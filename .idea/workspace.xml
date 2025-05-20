@@ -5,24 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55b05099-3f3e-46b4-b54f-9894b494ee9a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/testutils/MockTimeProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/test.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/client/ProductClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/ProductClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/UserClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/UserClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/data/TestDataSeeder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/data/TestDataSeeder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/domain/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/domain/model/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utils/CommonUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/testutils/CommonUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utils/MockDataGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/testutils/MockDataGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utils/MockTimeProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/api/UserApiTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/api/UserApiTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel1Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel1Test.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel2Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel2Test.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel3Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel3Test.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/utils/TestUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/testutils/TestUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testng.xml" beforeDir="false" afterPath="$PROJECT_DIR$/E2E_suite.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

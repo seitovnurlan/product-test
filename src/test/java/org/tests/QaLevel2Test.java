@@ -14,6 +14,7 @@ import testutils.TestUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
 @Epic("Тестирование уровня QA Level 2 – Расширенные проверки")
@@ -39,6 +40,10 @@ public class QaLevel2Test extends BaseTest {
     @Issue("BUG-QA2-01")
     public void testUpdateForbiddenAtNight() {
         MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 23, 0));
+        assertThat(productIds)
+                .as("Список созданных продуктов не должен быть пустым")
+                .isNotEmpty();
+
         Long id = productIds.get(0);
         Product update = seeder.generateProduct();
 
@@ -51,6 +56,9 @@ public class QaLevel2Test extends BaseTest {
     @Issue("BUG-QA2-02")
     public void testDeleteForbiddenOnMondayMorning() {
         MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 2, 8, 30)); // Понедельник
+        assertThat(productIds)
+                .as("Список созданных продуктов не должен быть пустым")
+                .isNotEmpty();
         Long id = productIds.get(1);
 
         var response = productClient.deleteProduct(id);
@@ -62,6 +70,10 @@ public class QaLevel2Test extends BaseTest {
     @Issue("BUG-QA2-03")
     public void testMaintenanceWindowReturns503() {
         MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 12, 5, 10));
+        assertThat(productIds)
+                .as("Список созданных продуктов не должен быть пустым")
+                .isNotEmpty();
+
         Long id = productIds.get(2);
 
         var response = productClient.getProductById(id);
