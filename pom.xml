@@ -147,7 +147,7 @@
                         <configuration>
                             <!-- allur.results.directory не нужен тут -->
                             <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/E2E_suite.xml</suiteXmlFile>
+                                <suiteXmlFile>src/test/resources/E2E-suite.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <testNGArtifactName>org.testng:testng</testNGArtifactName>
                         </configuration>
@@ -166,7 +166,7 @@
                         <configuration>
                             <!-- allur.results.directory не нужен тут -->
                             <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/E2E_suite.xml</suiteXmlFile>
+                                <suiteXmlFile>src/test/resources/E2E-suite.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <testNGArtifactName>org.testng:testng</testNGArtifactName>
                         </configuration>
