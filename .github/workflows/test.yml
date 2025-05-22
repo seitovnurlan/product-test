@@ -55,7 +55,7 @@ jobs:
         run: allure generate target/allure-results --clean -o target/allure-report
 
       - name: Upload Allure Report as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: target/allure-report
@@ -70,7 +70,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download Allure Report artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: allure-report
           path: allure-report
