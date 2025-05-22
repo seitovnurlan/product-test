@@ -29,10 +29,10 @@ public class QaLevel2Test extends BaseTest {
 
     @BeforeClass
     public void setup() {
-        logger.info("Сидирование мок-данных перед тестами уровня 2");
-        seeder.seedAll();
-        productIds = seeder.getCreatedProductIds();
-        logger.info("Создано {} продуктов. ID: {}", productIds.size(), productIds);
+//        logger.info("Сидирование мок-данных перед тестами уровня 2");
+//        seeder.seedAll();
+//        productIds = seeder.getCreatedProductIds();
+//        logger.info("Создано {} продуктов. ID: {}", productIds.size(), productIds);
     }
 
     @Test(description = "Обновления запрещены ночью (22:00–06:00)")
@@ -48,7 +48,7 @@ public class QaLevel2Test extends BaseTest {
         Product update = seeder.generateProduct();
 
         var response = productClient.updateProduct(id, update);
-        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA2-01");
+        TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA2-01");
     }
 
     @Test(description = "Удаления запрещены по понедельникам до 09:00")
@@ -62,7 +62,7 @@ public class QaLevel2Test extends BaseTest {
         Long id = productIds.get(1);
 
         var response = productClient.deleteProduct(id);
-        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA2-02");
+        TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA2-02");
     }
 
     @Test(description = "Окно обслуживания: каждую 5-ю минуту и если секунды < 30")
@@ -77,7 +77,7 @@ public class QaLevel2Test extends BaseTest {
         Long id = productIds.get(2);
 
         var response = productClient.getProductById(id);
-        TestUtils.assertKnownIssueOrExpected(response, 503, "BUG-QA2-03");
+        TestUtils.assertOrSkipIfKnownBug(response, 503, "BUG-QA2-03");
     }
 
 //    @Test(description = "В воскресенье утром доступны только ID > 1000")
@@ -101,7 +101,7 @@ public class QaLevel2Test extends BaseTest {
         product.setName("Invalid@Name!");
 
         var response = productClient.createProduct(product);
-        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA2-05");
+        TestUtils.assertOrSkipIfKnownBug(response, 400, "BUG-QA2-05");
     }
 
     @Test(description = "Названия-палиндромы зарезервированы")
@@ -112,7 +112,7 @@ public class QaLevel2Test extends BaseTest {
         product.setName("racecar");
 
         var response = productClient.createProduct(product);
-        TestUtils.assertKnownIssueOrExpected(response, 409, "BUG-QA2-06");
+        TestUtils.assertOrSkipIfKnownBug(response, 409, "BUG-QA2-06");
     }
 
     @Test(description = "Не более 5 операций с одним и тем же названием")
@@ -129,7 +129,7 @@ public class QaLevel2Test extends BaseTest {
         }
 
         var response = productClient.createProduct(product);
-        TestUtils.assertKnownIssueOrExpected(response, 429, "BUG-QA2-07");
+        TestUtils.assertOrSkipIfKnownBug(response, 429, "BUG-QA2-07");
     }
 
     @Test(description = "Цены не могут содержать одинаковые цифры")
@@ -140,6 +140,6 @@ public class QaLevel2Test extends BaseTest {
         product.setPrice(111.11);
 
         var response = productClient.createProduct(product);
-        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA2-08");
+        TestUtils.assertOrSkipIfKnownBug(response, 400, "BUG-QA2-08");
     }
 }

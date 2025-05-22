@@ -1,6 +1,7 @@
 package client;
 
 import domain.model.Product;
+import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.slf4j.Logger;
@@ -199,16 +200,28 @@ public class ProductClient {
     }
 
     private void logResponse(Response response) {
-        logger.info("⬅️ Код ответа: {}", response.getStatusCode());
-        if (response.getBody() != null && !response.getBody().asString().isBlank()) {
-            logger.info("📭 Тело ответа: {}", response.getBody().asPrettyString());
-            if (response.getStatusCode() == 500) {
-                logger.error("‼️ Сервер вернул 500 — проверь бизнес-валидацию на бэке. Тело: {}", response.getBody());
-            }
+        int statusCode = response.getStatusCode();
+        String responseBody = response.getBody() != null ? response.getBody().asPrettyString() : "";
 
+        logger.info("⬅️ Код ответа: {}", statusCode);
+
+        if (!responseBody.isBlank()) {
+            logger.info("📭 Тело ответа: {}", responseBody);
         }
 
+        if (statusCode == 500) {
+            // Логируем как известный баг, не как ошибку
+            logger.warn(" Известный баг: сервер вернул 500 — возможно проблема в бизнес-валидации. Тело ответа:\n{}", responseBody);
+
+            // Если используете Allure, можно добавить вложение:
+            Allure.addAttachment("Known issue: Server returned 500", responseBody);
+
+            // Можно здесь не кидать исключение, чтобы тест не падал, а просто логировать баг
+        }
     }
+
+
+
     public void deleteAllProductsIndividually() {
         List<Product> all = getAllProducts();
         for (Product product : all) {

@@ -1,4 +1,4 @@
-name: Run API Tests with Allure and publish to GitHub Pages
+name: Run API Tests and Publish Allure Report
 
 on:
   push:
@@ -21,6 +21,14 @@ jobs:
           java-version: '21'
           cache: maven
 
+      - name: Set up Node.js (required for Allure CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Allure CLI
+        run: npm install -g allure-commandline --unsafe-perm=true
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
@@ -40,25 +48,37 @@ jobs:
             sleep 2
           done
 
-      - name: Install Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip xvfb
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-
-      - name: Run Maven tests (headless)
-        run: xvfb-run mvn clean test -DsuiteXmlFile=src/test/resources/E2E-suite.xml
-
-      - name: Install Allure CLI
-        run: sudo npm install -g allure-commandline --unsafe-perm=true
+      - name: Run API Tests
+        run: mvn clean test
 
       - name: Generate Allure Report
         run: allure generate target/allure-results --clean -o target/allure-report
+
+      - name: Upload Allure Report as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-report
+          path: target/allure-report
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Allure Report artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: allure-report
+          path: allure-report
 
       - name: Deploy Allure Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/allure-report
+          publish_dir: allure-report
           destination_dir: allure-report
+          publish_branch: gh-pages

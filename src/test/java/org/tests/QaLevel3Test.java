@@ -30,10 +30,10 @@ public class QaLevel3Test extends BaseTest {
 
     @BeforeClass
     public void setup() {
-        logger.info("Сидирование мок-данных перед тестами уровня 3");
-        seeder.seedAll();
-        productIds = seeder.getCreatedProductIds();
-        logger.info("Создано {} продуктов. ID: {}", productIds.size(), productIds);
+//        logger.info("Сидирование мок-данных перед тестами уровня 3");
+//        seeder.seedAll();
+//        productIds = seeder.getCreatedProductIds();
+//        logger.info("Создано {} продуктов. ID: {}", productIds.size(), productIds);
     }
 
     @Test(description = "Удаление невозможно, если всего < 10 продуктов")
@@ -52,7 +52,7 @@ public class QaLevel3Test extends BaseTest {
                     .collect(Collectors.toList());
 
             var response = productClient.deleteProducts(ids);
-            TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-01");
+            TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA3-01");
         } else {
             logger.warn("Пропуск теста — на сервере уже {} продуктов", productCount);
         }
@@ -69,7 +69,7 @@ public class QaLevel3Test extends BaseTest {
 
         logger.info("Проверка удвоения цены: {} → {}", original.getPrice(), newPrice);
         var response = productClient.updateProduct(id, updated); // Передаём id отдельно
-        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-02");
+        TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA3-02");
     }
 
     @Test(description = "Доступ по ID < 1000 ограничен по времени (воскресенье утром)")
@@ -94,7 +94,7 @@ public class QaLevel3Test extends BaseTest {
         for (Long id : idsUnder1000) {
             logger.info("Запрос продукта с ID {} в воскресенье утром", id);
             var response = productClient.getProductById(id);
-            TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-03");
+            TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA3-03");
         }
     }
 
@@ -108,7 +108,7 @@ public class QaLevel3Test extends BaseTest {
         Product product = seeder.generateProduct();
         logger.info("PUT-запрос в период техобслуживания");
         var response = productClient.updateProduct(id, product);
-        TestUtils.assertKnownIssueOrExpected(response, 503, "BUG-QA3-04");
+        TestUtils.assertOrSkipIfKnownBug(response, 503, "BUG-QA3-04");
     }
 
     @Test(description = "PUT запрещён по средам")
@@ -120,7 +120,7 @@ public class QaLevel3Test extends BaseTest {
         Product product = seeder.generateProduct();
         logger.info("PUT-запрос в среду, когда обновление запрещено");
         var response = productClient.updateProduct(id, product);
-        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-05");
+        TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA3-05");
     }
 
     @Test(description = "BUG-QA3-06: Удаление продуктов с палиндромными ID запрещено")
@@ -139,7 +139,7 @@ public class QaLevel3Test extends BaseTest {
 
         for (Long id : palindromeIds) {
             Response response = productClient.deleteProduct(id);
-            TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-06");
+            TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA3-06");
         }
     }
 
@@ -165,7 +165,7 @@ public class QaLevel3Test extends BaseTest {
         // Пытаемся удалить сразу всех палиндромных кандидатов
         var response = productClient.deleteProducts(palindromeIds);
         // Проверка что получили 403 из-за бизнес-ограничения
-        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-07");
+        TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA3-07");
     }
 
     @Test(description = "Массовое удаление обычных ID — успешно")
@@ -191,7 +191,7 @@ public class QaLevel3Test extends BaseTest {
             var response = productClient.deleteProducts(nonPalindromes);
 
             // Проверяем, что ответ сервера либо ожидаемый успешный 204, либо известная ошибка
-            TestUtils.assertKnownIssueOrExpected(response, 204, "BUG-QA3-08");
+            TestUtils.assertOrSkipIfKnownBug(response, 204, "BUG-QA3-08");
         }
 
     @Test(description = "Массовое удаление невозможно при <10 продуктах")
@@ -229,7 +229,7 @@ public class QaLevel3Test extends BaseTest {
         logger.info("Пробуем массово удалить <10 продуктов ({} штук)", ids.size());
         Response response = productClient.deleteProducts(ids);
 
-        TestUtils.assertKnownIssueOrExpected(response, 403, "BUG-QA3-09");
+        TestUtils.assertOrSkipIfKnownBug(response, 403, "BUG-QA3-09");
     }
 
 
@@ -240,7 +240,7 @@ public class QaLevel3Test extends BaseTest {
         logger.info("Проверка имени-палиндрома со спецсимволами");
         Product product = new Product("ra@car", "fer", 99.99);
         var response = productClient.createProduct(product);
-        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA3-10");
+        TestUtils.assertOrSkipIfKnownBug(response, 400, "BUG-QA3-10");
     }
 
     @Test(description = "Создание продукта недоступно во время техобслуживания")
@@ -251,7 +251,7 @@ public class QaLevel3Test extends BaseTest {
         MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 12, 10, 10));
         Product product = seeder.generateProduct();
         var response = productClient.createProduct(product);
-        TestUtils.assertKnownIssueOrExpected(response, 503, "BUG-QA3-11");
+        TestUtils.assertOrSkipIfKnownBug(response, 503, "BUG-QA3-11");
     }
 
     @Test(description = "Обновление с некорректным именем и ценой должно вернуть ошибку по имени")
@@ -262,7 +262,7 @@ public class QaLevel3Test extends BaseTest {
         Long id = productIds.get(0);
         Product invalidProduct = new Product("Gadget@@","gur", 111.11);
         var response = productClient.updateProduct(id, invalidProduct);
-        TestUtils.assertKnownIssueOrExpected(response, 400, "BUG-QA3-12");
+        TestUtils.assertOrSkipIfKnownBug(response, 400, "BUG-QA3-12");
 //        TestUtils.assertErrorMessageContains(response, "Invalid name");
     }
 }

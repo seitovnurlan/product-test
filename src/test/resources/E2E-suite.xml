@@ -12,16 +12,4 @@
         </classes>
     </test>
 
-<!--    <test name="QA Level 2 Tests">-->
-<!--        <classes>-->
-<!--            <class name="org.tests.QaLevel2Test"/>-->
-<!--        </classes>-->
-<!--    </test>-->
-
-<!--    <test name="QA Level 3 Tests">-->
-<!--        <classes>-->
-<!--            <class name="org.tests.QaLevel3Test"/>-->
-<!--        </classes>-->
-<!--    </test>-->
-
 </suite>
