@@ -71,6 +71,20 @@ public class ProductClient {
         return response;
     }
 
+    @Step("Получение продуктов с пагинацией (Response) — page={page}, size={size}")
+    public Response getAllProductsResponse(int page, int size) {
+        String url = BASE_URI + "?page=" + page + "&size=" + size;
+        logRequest("GET", url, null);
+
+        Response response = given()
+                .accept(JSON)
+                .get(url)
+                .thenReturn();
+
+        logResponse(response);
+        return response;
+    }
+
     @Step("Получение всех продуктов (List<Product>)")
     public List<Product> getAllProducts() {
         return getAllProductsResponse()
@@ -81,8 +95,19 @@ public class ProductClient {
                 .getList("content", Product.class);
     }
 
+    @Step("Получение всех ID продуктов")
+    public List<Long> getAllProductIds() {
+        return getAllProducts()
+                .stream()
+                .map(Product::getId)
+                .toList(); // или .collect(Collectors.toList()) для Java 8
+    }
+
     @Step("Получение продукта по ID: {id}")
     public Response getProductById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Product ID не может быть null при удалении");
+        }
         String url = BASE_URI + "/" + id;
         logRequest("GET", url, null);
 
@@ -97,6 +122,9 @@ public class ProductClient {
 
     @Step("Удаление продукта по ID: {id}")
     public Response deleteProduct(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Product ID не может быть null при удалении");
+        }
         String url = BASE_URI + "/" + id;
         logRequest("DELETE (by ID)", url, null);
 
@@ -137,20 +165,30 @@ public class ProductClient {
         return response;
     }
 
-    @Step("Обновление продукта по ID: {id} -> {product}")
+    @Step("Обновление продукта по ID: {id}")
     public Response updateProduct(Long id, Product product) {
-        String url = BASE_URI + "/" + id; // Втсавляем ID в путь
-        logRequest("PUT", url, product);
+        // 💥 Валидация входных данных
+        if (id == null) {
+            throw new IllegalArgumentException("Product ID не может быть null при обновлении");
+        }
+        if (product == null) {
+            throw new IllegalArgumentException("Объект Product не может быть null");
+        }
+        String endpoint = String.format("%s/%d", BASE_URI, id); // Читаемо и безопасно
+
+        logRequest("PUT", endpoint, product);
 
         Response response = given()
                 .contentType(JSON)
                 .body(product)
-                .put(url)
+                .when()
+                .put(endpoint)
                 .thenReturn();
 
         logResponse(response);
         return response;
     }
+
 
     // 🔽 Утилитные методы логирования
     private void logRequest(String method, String url, Object body) {
@@ -171,4 +209,11 @@ public class ProductClient {
         }
 
     }
+    public void deleteAllProductsIndividually() {
+        List<Product> all = getAllProducts();
+        for (Product product : all) {
+            deleteProduct(product.getId());
+        }
+    }
+
 }

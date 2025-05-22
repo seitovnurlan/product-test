@@ -33,13 +33,16 @@ public class TestDataSeeder {
 
     private final List<Long> createdUserIds = new ArrayList<>();
     private final List<Long> createdProductIds = new ArrayList<>();
+    private static final List<Double> VALID_PRICES = List.of(
+            123.45, 543.21, 987.12, 10.0, 25.45, 98.56, 456.78, 321.89, 654.32
+    );
 
     /**
      * Сидирует и пользователей, и продукты.
-     * Значения по умолчанию: 5 пользователей, 10 продуктов.
+     * Значения по умолчанию: 10 пользователей, 10 продуктов.
      */
     public void seedAll() {
-        seedAll(5, 10);
+        seedAll(10, 10);
     }
     /**
      * Сидирует указанное количество пользователей и продуктов.
@@ -85,20 +88,25 @@ public class TestDataSeeder {
     @Step("Создание продуктов через ProductClient")
     public void seedProducts(int count) {
     logger.info("Попытка создать {}, продуктов", count);
-
+        List<String> materials = List.of("Plastic", "Metal", "Wood", "Glass", "Leather", "Cotton");
+        double price = generateValidPrice();
         for (int i = 0; i < count; i++) {
+            String newProdName = String.format("SafeProduct%03d", i + 1);
+            //                    faker.commerce().productName(),
+            String material = materials.get(faker.random().nextInt(materials.size()));
             Product product = new Product(
-                    faker.commerce().productName(),
-                    faker.commerce().material(),
-                    faker.number().randomDouble(2, 10, 1000)
+                    newProdName,
+                    material,
+                   price
             );
             Response response = productClient.createProduct(product);
+            logger.info("Тело запроса: " + product);
 //            if (response.statusCode() >= 200 || response.statusCode() < 300) {
             if (response.statusCode() == 201 || response.statusCode() == 200) {
                 Product created = response.as(Product.class);
                 createdProducts.add(created);
                 createdProductIds.add(created.getId());
-                logger.info("✅ Создан продукт: {}, статус {} должно было 201", created, response.statusCode());
+                logger.info("✅ Создан продукт: {}, ID: {}, статус {}", product.getName(), created.getId(), response.statusCode());
             } else {
 //                logger.warn("Ошибка при создании продукта: статус {}, тело {}", response.statusCode(), response.getBody().asString());
                 logger.error("❌ Не удалось создать продукт: {}, статус: {}, тело: {}",
@@ -108,6 +116,9 @@ public class TestDataSeeder {
         if (createdProducts.isEmpty()) {
             logger.warn("⚠️ Ни одного продукта не было успешно создано.");
         }
+    }
+    private double generateValidPrice() {
+        return VALID_PRICES.get(faker.random().nextInt(VALID_PRICES.size()));
     }
 
     public List<User> getCreatedUsers() {

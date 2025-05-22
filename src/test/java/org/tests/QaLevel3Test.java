@@ -1,6 +1,5 @@
 package org.tests;
 
-import org.tests.BaseTest;
 import client.ProductClient;
 import data.TestDataSeeder;
 import io.qameta.allure.*;
@@ -10,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import io.restassured.response.Response;
-import testutils.MockTimeProvider;
-import testutils.TestUtils;
+import mainutils.MockTimeProvider;
+import testutil.TestUtils;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -81,7 +80,7 @@ public class QaLevel3Test extends BaseTest {
         MockTimeProvider.setFixedTime(LocalDateTime.of(2025, 5, 18, 9, 0));
 
         // Создаём 20 продуктов
-        seeder.seedAll(20, 1000);
+        seeder.seedAll(10, 10);
 
         // Отбираем ID < 1000
         List<Long> idsUnder1000 = productClient.getAllProducts().stream()

@@ -1,4 +1,4 @@
-package testutils;
+package mainutils;
 
 public class CommonUtils {
 }

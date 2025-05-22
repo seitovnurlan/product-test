@@ -5,10 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55b05099-3f3e-46b4-b54f-9894b494ee9a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/test.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mainutils/ProductCleanupService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mainutils/UserCleanupService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/E2E_suite.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/E2E-suite.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/ProductClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/ProductClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/UserClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/UserClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/data/TestDataSeeder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/data/TestDataSeeder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/domain/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/domain/model/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/testutils/CommonUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mainutils/CommonUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/testutils/MockDataGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mainutils/MockDataGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/testutils/MockTimeProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mainutils/MockTimeProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel1Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel1Test.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel2Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel2Test.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel3Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/tests/QaLevel3Test.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/testutils/TestUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/testutil/TestUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/E2E-suite.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/E2E-suite.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,25 +65,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "TestNG./Users/nurlanseitov/IdeaProjects/product-test/E2E_suite.xml.executor": "Run",
-    "TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml.executor": "Run",
-    "TestNG.QaLevel1Test.executor": "Run",
-    "TestNG.UserApiTest.executor": "Run",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/nurlanseitov/IdeaProjects/product-test",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.19885057",
-    "settings.editor.selected.configurable": "MavenSettings"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;TestNG./Users/nurlanseitov/IdeaProjects/product-test/E2E_suite.xml.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG./Users/nurlanseitov/IdeaProjects/product-test/src/test/resources/E2E-suite.xml.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG.QaLevel1Test.executor&quot;: &quot;Run&quot;,
+    &quot;TestNG.UserApiTest.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/nurlanseitov/IdeaProjects/product-test&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.19885057&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/test/resources" />
@@ -82,7 +95,7 @@
       <recent name="utils" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG./Users/nurlanseitov/IdeaProjects/product-test/E2E_suite.xml">
+  <component name="RunManager" selected="TestNG./Users/nurlanseitov/IdeaProjects/product-test/src/test/resources/E2E-suite.xml">
     <configuration name="QaLevel1Test" type="TestNG" temporary="true" nameIsGenerated="true">
       <module name="product-test" />
       <extension name="coverage">
@@ -127,6 +140,16 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="/Users/nurlanseitov/IdeaProjects/product-test/src/test/resources/E2E-suite.xml" type="TestNG" temporary="true" nameIsGenerated="true">
+      <module name="product-test" />
+      <option name="SUITE_NAME" value="$PROJECT_DIR$/src/test/resources/E2E-suite.xml" />
+      <option name="TEST_OBJECT" value="SUITE" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="/Users/nurlanseitov/IdeaProjects/product-test/testng.xml" type="TestNG" temporary="true" nameIsGenerated="true">
       <module name="product-test" />
       <option name="SUITE_NAME" value="$PROJECT_DIR$/testng.xml" />
@@ -139,6 +162,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="TestNG./Users/nurlanseitov/IdeaProjects/product-test/src/test/resources/E2E-suite.xml" />
         <item itemvalue="TestNG./Users/nurlanseitov/IdeaProjects/product-test/E2E_suite.xml" />
         <item itemvalue="TestNG./Users/nurlanseitov/IdeaProjects/product-test/testng.xml" />
         <item itemvalue="TestNG.QaLevel1Test" />

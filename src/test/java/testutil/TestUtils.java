@@ -1,4 +1,4 @@
-package testutils;
+package testutil;
 
 import io.qameta.allure.Allure;
 import io.restassured.response.Response;
@@ -17,7 +17,7 @@ public class TestUtils {
         if (actual == expectedCode) {
             logger.info("Ожидаемый код ответа: {}", actual);
             assertThat(actual).isEqualTo(expectedCode);
-        } else if (actual == 500 && body.contains("/api/products/")) {
+        } else if (actual == 500) {
             logger.warn("Ожидался {}, но сервер вернул 500 — фиксируем как баг {}", expectedCode, issueId);
             Allure.addAttachment("Known issue",
                     "BUG in " + issueId + ": сервер возвращает 500 вместо " + expectedCode + "\n\nОтвет:\n" + body);

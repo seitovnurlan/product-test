@@ -11,7 +11,7 @@ public class Product {
 
     public Product(String name,String description, double price) {
         this.name = name;
-        this.name = description;
+        this.description = description;
         this.price = price;
     }
 
@@ -34,4 +34,8 @@ public class Product {
     public void setDescription(String description) { this.description = description; }
     public void setPrice(double price) { this.price = price; }
 
+    @Override
+    public String toString() {
+        return "Product{name='" + name + "', description=" + description + ", price=" + price + "}";
+    }
 }

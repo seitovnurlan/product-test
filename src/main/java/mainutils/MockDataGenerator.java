@@ -1,4 +1,4 @@
-package testutils;
+package mainutils;
 
 import com.github.javafaker.Faker;
 import org.json.JSONObject;

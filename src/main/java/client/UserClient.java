@@ -10,6 +10,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.testng.Assert.assertEquals;
 
 /**
  * REST-клиент для управления пользователями.
@@ -56,6 +57,7 @@ public class UserClient {
                 .thenReturn();
 
         logResponse(response);
+        assertEquals(response.getStatusCode(), 200, "Некорректный статус-код при получении пользователей");
         return response.jsonPath().getList(".", User.class);
     }
 
