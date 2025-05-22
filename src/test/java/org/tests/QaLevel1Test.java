@@ -170,12 +170,9 @@ public class QaLevel1Test extends BaseTest {
     @Issue("BUG-QA1-06")
     public void testPriceChangeMoreThan500IsForbidden() {
         // Берём первый продукт из списка
-        System.out.println("productIds: " + productIds);
         Long id = productIds.get(0);
-        System.out.println("Using ID: " + id);
 //        Product original = productClient.getProductById(id);
         Product original = productClient.getAllProducts().get(0);
-        System.out.println("Got original: " + original);
 
         if (original == null) {
             throw new RuntimeException("Product with ID " + id + " not found!");
