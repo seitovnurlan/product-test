@@ -29,35 +29,7 @@ public class QaLevel1Test extends BaseTest {
 
     private final ProductClient productClient = new ProductClient();
     private final TestDataSeeder seeder = new TestDataSeeder();
-    private List<Long> productIds;
     private static final String BASE_URI = System.getProperty("api.base.url", "http://localhost:31494/api/products");
-
-    @BeforeClass
-    public void setup() {
-//        logger.info("📦 Очистка ранее созданных данных");
-//        UserCleanupService cleanerUser = new UserCleanupService();
-//        ProductCleanupService cleanerProd = new ProductCleanupService();
-//        cleanerUser.cleanUpAllUsers();    // Полностью очищает пользователей в системе.
-//        cleanerProd.cleanUpAllProducts(); // Полная очистка с понижением цены
-
-//        logger.info("Загрузка мок-данных перед тестами уровня 1");
-//        seeder.seedAll();
-//        productIds = seeder.getCreatedProductIds();
-
-            List<Long> existingIds = productClient.getAllProductIds(); // достаём ID из сервера
-
-            if (existingIds.isEmpty()) {
-                System.out.println("Продуктов нет. Сидируем данные...");
-                seeder.seedAll();
-                productIds = seeder.getCreatedProductIds();
-            } else {
-                System.out.println("Продукты найдены. Используем существующие...");
-                productIds = existingIds;
-            }
-        logger.info("Создано {} продуктов. ID: {}", productIds.size(), productIds);
-        logger.info("📦 Начало теста");
-//        this.productIds = new ArrayList<>();
-    }
 
     @Test(description = "Продукты с чётными ID недоступны для получения")
     @Severity(SeverityLevel.CRITICAL)
