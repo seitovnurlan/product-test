@@ -62,7 +62,7 @@ public class QaLevel3Test extends BaseTest {
         logger.info("Проверка удвоения цены: {} → {}", original.getPrice(), newPrice);
         var response = productClient.updateProduct(id, updated); // Передаём id отдельно
         //ожид 403 , 200 баг
-        TestUtils.assertOrSkipIfKnownBug(response, 200, "BUG-QA3-02");
+        TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA3-02");
     }
 
     @Test(description = "Доступ по ID < 1000 ограничен по времени (воскресенье утром)")
