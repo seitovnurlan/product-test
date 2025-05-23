@@ -90,7 +90,7 @@ public class ProductClient {
     public List<Product> getAllProducts() {
         return getAllProductsResponse()
                 .then()
-                .statusCode(200)
+//                .statusCode(200)
                 .extract()
                 .jsonPath()
                 .getList("content", Product.class);

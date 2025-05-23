@@ -91,7 +91,7 @@ public class TestDataSeeder {
         List<String> materials = List.of("Plastic", "Metal", "Wood", "Glass", "Leather", "Cotton");
         double price = generateValidPrice();
         for (int i = 0; i < count; i++) {
-            String newProdName = String.format("SafeProduct%03d", i + 1);
+            String newProdName = String.format(faker.commerce().productName() + System.currentTimeMillis());
             //                    faker.commerce().productName(),
             String material = materials.get(faker.random().nextInt(materials.size()));
             Product product = new Product(
