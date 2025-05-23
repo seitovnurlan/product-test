@@ -52,8 +52,9 @@ jobs:
         run: mvn clean test
 
       - name: Generate Allure Report
-        run: allure generate target/allure-results --clean -o target/allure-report
-             touch target/allure-report/.nojekyll
+        run: |
+          allure generate target/allure-results --clean -o target/allure-report
+          touch target/allure-report/.nojekyll
 
       - name: Upload Allure Report as Artifact
         uses: actions/upload-artifact@v4
@@ -80,5 +81,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/allure-report
+          publish_dir: allure-report
           publish_branch: gh-pages
