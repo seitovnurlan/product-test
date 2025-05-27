@@ -1,14 +1,15 @@
 package client;
 
+import config.RestAssuredConfigurator;
 import domain.model.Product;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
+import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
@@ -19,23 +20,23 @@ import static io.restassured.http.ContentType.JSON;
  */
 public class ProductClient {
 
+    public ProductClient() {
+        RestAssuredConfigurator.configure("/api/products");
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(ProductClient.class);
-
-    // Базовый URL можно переопределить через VM-параметры или .env переменные
-    private static final String BASE_URI = System.getProperty("api.base.url", "http://localhost:31494/api/products");
-
     /**
      * Универсальный метод создания продукта через API
      */
     @Step("Создание продукта: {product}")
     public Response createProduct(Product product) {
-        String url = BASE_URI;
-        logRequest("POST", url, product);
 
+        logRequest("POST", "</>", product);
+        String url = baseURI;
         Response response = given()
                 .contentType(JSON)
                 .body(product)
-                .post(url)
+                .post()
                 .thenReturn();
 
         logResponse(response);
@@ -60,12 +61,12 @@ public class ProductClient {
 
     @Step("Получение всех продуктов (Response)")
     public Response getAllProductsResponse() {
-        String url = BASE_URI;
-        logRequest("GET", url, null);
+        String url = baseURI;
+        logRequest("GET", "</>", null);
 
         Response response = given()
                 .accept(JSON)
-                .get(url)
+                .get()
                 .thenReturn();
 
         logResponse(response);
@@ -74,12 +75,12 @@ public class ProductClient {
 
     @Step("Получение продуктов с пагинацией (Response) — page={page}, size={size}")
     public Response getAllProductsResponse(int page, int size) {
-        String url = BASE_URI + "?page=" + page + "&size=" + size;
-        logRequest("GET", url, null);
+        String path = "/" + "?page=" + page + "&size=" + size;
+        logRequest("GET", path, null);
 
         Response response = given()
                 .accept(JSON)
-                .get(url)
+                .get(path)
                 .thenReturn();
 
         logResponse(response);
@@ -98,23 +99,37 @@ public class ProductClient {
 
     @Step("Получение всех ID продуктов")
     public List<Long> getAllProductIds() {
-        return getAllProducts()
-                .stream()
-                .map(Product::getId)
-                .toList(); // или .collect(Collectors.toList()) для Java 8
+        logger.info("📥 Получение всех продуктов для анализа ID");
+
+        Response response = given()
+                .get()
+                .thenReturn();
+
+        logResponse(response);
+
+        if (response.statusCode() != 200) {
+            throw new IllegalStateException("Не удалось получить список продуктов: " + response.statusCode());
+        }
+        return response.jsonPath().getList("id", Long.class);
     }
+//        return getAllProducts()
+//                .stream()
+//                .map(Product::getId)
+//                .toList(); // или .collect(Collectors.toList()) для Java 8
+
 
     @Step("Получение продукта по ID: {id}")
     public Response getProductById(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Product ID не может быть null при удалении");
         }
-        String url = BASE_URI + "/" + id;
-        logRequest("GET", url, null);
+        logRequest("GET", "/{id}", null);
 
         Response response = given()
+                .pathParam("id", id)
+                .when()
                 .accept(JSON)
-                .get(url)
+                .get("/{id}")
                 .thenReturn();
 
         logResponse(response);
@@ -126,11 +141,13 @@ public class ProductClient {
         if (id == null) {
             throw new IllegalArgumentException("Product ID не может быть null при удалении");
         }
-        String url = BASE_URI + "/" + id;
-        logRequest("DELETE (by ID)", url, null);
+//        String path = "/" + "/" + id;
+        logRequest("DELETE (by ID)", "/{id}", null);
 
         Response response = given()
-                .delete(url)
+                .pathParam("id", id)
+                .when()
+                .delete("/{id}")
                 .thenReturn();
 
         logResponse(response);
@@ -139,14 +156,13 @@ public class ProductClient {
 
     @Step("Массовое удаление продуктов (bulk): {ids}")
     public Response deleteProducts(List<Long> ids) {
-        String url = BASE_URI;
-        logRequest("DELETE (bulk)", url, ids);
+        logRequest("DELETE (bulk)", "/", ids);
 
         Response response = given()
                 .contentType(JSON)
                 .body(ids)
                 .when()
-                .request("DELETE", url) // REST Assured требует ручной вызов метода, если передаётся тело для DELETE
+                .request("DELETE", "") // REST Assured требует ручной вызов метода, если передаётся тело для DELETE
                 .thenReturn();
 
         logResponse(response);
@@ -155,11 +171,10 @@ public class ProductClient {
 
     @Step("Удаление всех продуктов")
     public Response deleteAllProducts() {
-        String url = BASE_URI;
-        logRequest("DELETE (all)", url, null);
+        logRequest("DELETE (all)", "/", null);
 
         Response response = given()
-                .delete(url)
+                .delete()
                 .thenReturn();
 
         logResponse(response);
@@ -175,7 +190,7 @@ public class ProductClient {
         if (product == null) {
             throw new IllegalArgumentException("Объект Product не может быть null");
         }
-        String endpoint = String.format("%s/%d", BASE_URI, id); // Читаемо и безопасно
+        String endpoint = "/" + id; // просто "/1", т.к. basePath уже установлен
 
         logRequest("PUT", endpoint, product);
 
@@ -183,7 +198,7 @@ public class ProductClient {
                 .contentType(JSON)
                 .body(product)
                 .when()
-                .put(endpoint)
+                .put("/{id}", id)
                 .thenReturn();
 
         logResponse(response);
@@ -209,15 +224,15 @@ public class ProductClient {
             logger.info("📭 Тело ответа: {}", responseBody);
         }
 
-        if (statusCode == 500) {
-            // Логируем как известный баг, не как ошибку
-            logger.warn(" Известный баг: сервер вернул 500 — возможно проблема в бизнес-валидации. Тело ответа:\n{}", responseBody);
-
-            // Если используете Allure, можно добавить вложение:
-            Allure.addAttachment("Known issue: Server returned 500", responseBody);
-
-            // Можно здесь не кидать исключение, чтобы тест не падал, а просто логировать баг
-        }
+//        if (statusCode == 500) {
+//            // Логируем как известный баг, не как ошибку
+//            logger.warn(" Известный баг: сервер вернул 500 — возможно проблема в бизнес-валидации. Тело ответа:\n{}", responseBody);
+//
+//            // Если используете Allure, можно добавить вложение:
+//            Allure.addAttachment("Known issue: Server returned 500", responseBody);
+//
+//            // Можно здесь не кидать исключение, чтобы тест не падал, а просто логировать баг
+//        }
     }
 
 
@@ -227,6 +242,19 @@ public class ProductClient {
         for (Product product : all) {
             deleteProduct(product.getId());
         }
+    }
+    public Product getProductByIdSafe(Long id) {
+        Response response = getProductById(id);
+
+        int status = response.getStatusCode();
+        if (status != 200) {
+            logger.error("❌ Ошибка при получении продукта ID {}: статус {}, тело: {}",
+                    id, status, response.getBody().asString());
+            throw new RuntimeException("Не удалось получить продукт по ID " + id +
+                    ". Код: " + status);
+        }
+
+        return response.as(Product.class);
     }
 
 }

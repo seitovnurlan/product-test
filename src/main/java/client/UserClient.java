@@ -1,13 +1,16 @@
 package client;
 
 import domain.model.User;
+import config.RestAssuredConfigurator;
 import io.qameta.allure.Step;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
+import io.restassured.specification.RequestSpecification;
+import static io.restassured.RestAssured.basePath;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.testng.Assert.assertEquals;
@@ -19,17 +22,23 @@ import static org.testng.Assert.assertEquals;
 public class UserClient {
 
     private static final Logger logger = LoggerFactory.getLogger(UserClient.class);
-    private static final String BASE_URI = System.getProperty("api.base.url", "http://localhost:31494/api/users");
+//    private final RequestSpecification spec;
 
+    public UserClient() {
+        // Настраиваем basePath для всех запросов этого клиента
+        RestAssuredConfigurator.configure("/api/users");
+
+        // Локальный spec на случай использования новых методов
+//        this.spec = given().basePath("/api/users").contentType(JSON);
+    }
     @Step("Создание пользователя: {user}")
     public Response createUser(User user) {
-        String url = BASE_URI;
-        logRequest("POST", url, user);
+        logRequest("POST", user);
 
         Response response = given()
-                .contentType(JSON)
+                .contentType("application/json")
                 .body(user)
-                .post(url)
+                .post()
                 .thenReturn();
 
         logResponse(response);
@@ -51,9 +60,10 @@ public class UserClient {
 
     @Step("Получение всех пользователей")
     public List<User> getAllUsers() {
+        logRequest("GET", null);
         Response response = given()
                 .accept(JSON)
-                .get(BASE_URI)
+                .get()
                 .thenReturn();
 
         logResponse(response);
@@ -63,11 +73,11 @@ public class UserClient {
 
     @Step("Удаление пользователя по ID: {id}")
     public Response deleteUser(Long id) {
-        String url = BASE_URI + "/" + id;
-        logRequest("DELETE", url, null);
+        String path = "/" + id;
+        logRequest("DELETE", null);
 
         Response response = given()
-                .delete(url)
+                .delete(path)
                 .thenReturn();
 
         logResponse(response);
@@ -76,18 +86,19 @@ public class UserClient {
 
     @Step("Удаление всех пользователей")
     public Response deleteAllUsers() {
-        logRequest("DELETE", BASE_URI, null);
+        logRequest("DELETE", null);
 
         Response response = given()
-                .delete(BASE_URI)
+                .delete()
                 .thenReturn();
 
         logResponse(response);
         return response;
     }
 
-    private void logRequest(String method, String url, Object body) {
-        logger.info("➡️ {} {}", method, url);
+    private void logRequest(String method, Object body) {
+        String fullUrl = RestAssured.baseURI + RestAssured.basePath;
+        logger.info("➡️ {} {}", method, fullUrl);
         if (body != null) {
             logger.info("📦 Тело запроса: {}", body);
         }

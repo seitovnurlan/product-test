@@ -1,6 +1,6 @@
 package org.tests;
 
-import io.restassured.RestAssured;
+import config.RestAssuredConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
@@ -10,35 +10,17 @@ import data.TestDataSeeder;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public abstract class BaseTest {
+public abstract class BaseProductServiceTest {
 
     protected static List<Long> productIds = new ArrayList<>();
     protected static TestDataSeeder seeder = new TestDataSeeder();
     protected static ProductClient productClient = new ProductClient();
-    protected static Logger logger = LoggerFactory.getLogger(BaseTest.class);
-
-    protected static final String BASE_URL = "http://localhost:31494";
+    protected static Logger logger = LoggerFactory.getLogger(BaseProductServiceTest.class);
 
     @BeforeClass(alwaysRun = true)
     public void globalSetup() {
 
-        RestAssured.baseURI = BASE_URL;
-        seeder = new TestDataSeeder();
-        productClient = new ProductClient();
-
-
-//        logger.info("📦 Очистка ранее созданных данных");
-//        UserCleanupService cleanerUser = new UserCleanupService();
-//        ProductCleanupService cleanerProd = new ProductCleanupService();
-//        cleanerUser.cleanUpAllUsers();    // Полностью очищает пользователей в системе.
-//        cleanerProd.cleanUpAllProducts(); // Полная очистка с понижением цены
-
-//        logger.info("Загрузка мок-данных перед тестами уровня 1");
-//        seeder.seedAll();
-//        productIds = seeder.getCreatedProductIds();
-
-        if (productIds == null || productIds.isEmpty()) {
+      if (productIds == null || productIds.isEmpty()) {
             logger.info("📦 Проверка и инициализация данных перед тестами");
 
             List<Long> existingIds = productClient.getAllProductIds();

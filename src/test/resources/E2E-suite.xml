@@ -6,19 +6,19 @@
         <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
     </listeners>
 
-    <test name="QA Level 1 Tests">
+    <test name="ProductService Test Level 1">
         <classes>
-            <class name="org.tests.QaLevel1Test"/>
+            <class name="org.tests.ProductServiceLevel1Test"/>
         </classes>
     </test>
-    <test name="QA Level 2 Tests">
+    <test name="ProductService Test Level 2">
         <classes>
-            <class name="org.tests.QaLevel2Test"/>
+            <class name="org.tests.ProductServiceLevel2Test"/>
         </classes>
     </test>
-    <test name="QA Level 3 Tests">
+    <test name="ProductService Test Level 3">
         <classes>
-            <class name="org.tests.QaLevel3Test"/>
+            <class name="org.tests.ProductServiceLevel3Test"/>
         </classes>
     </test>
 

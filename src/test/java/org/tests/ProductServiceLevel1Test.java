@@ -1,11 +1,10 @@
 package org.tests;
 
-import data.TestDataSeeder;
+import config.RestAssuredConfigurator;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import client.ProductClient;
 import domain.model.Product;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -13,25 +12,18 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.http.ContentType.JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import testutil.TestUtils;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Epic("Тестирование уровня QA Level 1 – Базовые проверки")
 @Feature("Проверка идентификаторов, цен и базовых ограничений")
-public class QaLevel1Test extends BaseTest {
+public class ProductServiceLevel1Test extends BaseProductServiceTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(QaLevel1Test.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProductServiceLevel1Test.class);
 
-    private final ProductClient productClient = new ProductClient();
-    private final TestDataSeeder seeder = new TestDataSeeder();
-    private static final String BASE_URI = System.getProperty("api.base.url", "http://localhost:31494/api/products");
-
-    @Test(description = "Продукты с чётными ID недоступны для получения")
+    @Test(description = "BUG-QA1-01: Продукты с чётными ID недоступны для получения", priority = 1)
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: доступ к продукту с чётным ID должен быть запрещён (403). "
             + "Если сервер вернёт 500 — это известный баг BUG-QA1-01.")
@@ -52,7 +44,7 @@ public class QaLevel1Test extends BaseTest {
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA1-01");
     }
 
-    @Test(description = "Нельзя обновить продукт с ID, кратным 3")
+    @Test(description = "BUG-QA1-02: Нельзя обновить продукт с ID, кратным 3", priority = 2)
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: обновление продукта с ID, кратным 3, должно быть запрещено (403). "
             + "Если API вернёт 500 — это известный баг BUG-QA1-02.")
@@ -65,7 +57,7 @@ public class QaLevel1Test extends BaseTest {
                 .orElseThrow(() -> new RuntimeException("❌ Не найден ID, кратный 3, среди сгенерированных продуктов"));
 
         Product update = new Product("Updated lov3Prod_"+ System.currentTimeMillis(),"love3"+ System.currentTimeMillis(), 100);
-        logger.info("🔍 Тест BUG-QA1-02: Проверка запрета обновления продукта с ID {}. Обновляемые данные: {}", id, update);
+        logger.info("🔍 Тест BUG-QA1-02: Проверка запрета обновления продукта с ID {}. С обновляемыми данными", id);
 
         // Act: отправляем PUT-запрос на обновление продукта с ID, кратным 3
         Response response = productClient.updateProduct(id, update);
@@ -74,7 +66,7 @@ public class QaLevel1Test extends BaseTest {
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA1-02");
     }
 
-    @Test(description = "Продукты с простыми ID (2, 3, 5, 7) недоступны для получения")
+    @Test(description = "BUG-QA1-03: Продукты с простыми ID (2, 3, 5, 7) недоступны для получения", priority = 3)
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: доступ к продуктам с простыми ID (2, 3, 5, 7) должен быть запрещён (403). "
             + "Если API вернёт 500 — это известный баг BUG-QA1-03.")
@@ -93,15 +85,15 @@ public class QaLevel1Test extends BaseTest {
         }
     }
 
-    @Test(description = "Создание продукта с ценой выше 1000 запрещено")
+    @Test(description = "BUG-QA1-04: Создание продукта с ценой выше $1000 запрещено", priority = 4)
     @Severity(SeverityLevel.CRITICAL)
-    @Description("Проверка: при создании продукта с ценой > 1000 API должно вернуть 403 Forbidden. "
+    @Description("Проверка: при создании продукта с ценой > $1000 API должно вернуть 403 Forbidden. "
             + "Если сервер вернёт 500 — это известный баг BUG-QA1-04.")
     @Issue("BUG-QA1-04")
     public void testCreateProductWithHighPriceIsForbidden() {
-        // Arrange: создаем продукт с завышенной ценой (1500 сом)
+        // Arrange: создаем продукт с завышенной ценой ($1500)
         Product expensiveProduct = new Product("Expensive Product_" + System.currentTimeMillis(),"auto generated"+ System.currentTimeMillis(), 1500);
-        logger.info("🔍 Тест BUG-QA1-04: попытка создать продукт с завышенной ценой: {}", expensiveProduct);
+        logger.info("🔍 Тест BUG-QA1-04: попытка создать продукт с завышенной ценой");
 
         // Act: отправляем POST-запрос на создание продукта
         Response response = productClient.createProduct(expensiveProduct);
@@ -110,19 +102,22 @@ public class QaLevel1Test extends BaseTest {
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA1-04");
     }
 
-    @Test(description = "Удаление продукта с ценой > 100 запрещено")
+    @Test(description = "BUG-QA1-05: Удаление продукта с ценой > $100 запрещено", priority = 5)
     @Severity(SeverityLevel.CRITICAL)
-    @Description("Проверка, что удаление продукта с ценой выше 100 запрещено (403). " +
+    @Description("Проверка, что удаление продукта с ценой выше $100 запрещено (403). " +
             "Если сервер возвращает 500, это известный баг BUG-QA1-05.")
     @Issue("BUG-QA1-05")
     public void testDeleteProductWithPriceOver100IsForbidden() {
         // Arrange:создаём продукт с ценой 150 — выше разрешённого порога для удаления
         Product product = new Product("ToDelete_"+System.currentTimeMillis(), "auto delete"+System.currentTimeMillis(), 150);
         Response createResponse = productClient.createProduct(product);
+        logger.info("🔍 Тест BUG-QA1-05: Проверка, что удаление продукта с ценой выше $100 запрещено");
 
         // Проверка успешного создания: 200 или 201 — допустимые статусы
+        logger.info("🔍 Тест BUG-QA1-05: Проверка успешного создания: 200 или 201 — допустимые статусы");
         TestUtils.assertOrSkipIfKnownBug(createResponse, 200, "BUG-QA1-05");
 //        TestUtils.assertKnownIssueOrExpected(createResponse, 201, "BUG-QA1-05");
+
         if (createResponse.statusCode() == 201 || createResponse.statusCode() == 200) {
             Integer id = createResponse.jsonPath().get("id");
             Assert.assertNotNull(id, "❌ Сервер не вернул поле 'id'. Ответ: " + createResponse.getBody().asString());
@@ -135,7 +130,7 @@ public class QaLevel1Test extends BaseTest {
         }
     }
 
-    @Test(description = "Изменение цены более чем на $500 запрещено")
+    @Test(description = "BUG-QA1-06: Изменение цены более чем на $500 запрещено", priority = 6)
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка, что изменение цены продукта более чем на $500 запрещено (403). " +
             "Если сервер возвращает 500, 200 или 201 — это известная ошибка BUG-QA1-06.")
@@ -167,18 +162,17 @@ public class QaLevel1Test extends BaseTest {
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA1-06");
     }
 
-    @Test(description = "Проверка, что сервер обрабатывает GET /products минимум за 100 мс")
+    @Test(description = "BUG-QA1-07: Проверка, что сервер обрабатывает GET /products минимум за 100 мс", priority = 7)
     @Severity(SeverityLevel.NORMAL)
     @Description("Проверяет, что сервер отвечает на запрос GET /products с задержкой не менее 100 мс. " +
             "Если время меньше — фиксируем как известный баг BUG-QA1-07 и пропускаем тест.")
     @Issue("BUG-QA1-07")
     public void testMinimumDelayOf100ms() {
         logger.info("🧪 Запуск теста BUG-QA1-07: Проверка минимальной задержки GET /api/products");
-        String url = BASE_URI;
         // Act: Отправляем GET запрос и получаем Response
         Response response = given()
                 .when()
-                .get(url)
+                .get()
                 .andReturn();
 
         long responseTime = response.time();

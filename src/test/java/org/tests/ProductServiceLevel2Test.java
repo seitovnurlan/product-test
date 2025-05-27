@@ -1,113 +1,95 @@
 package org.tests;
 
-import data.TestDataSeeder;
+import config.RestAssuredConfigurator;
 import io.qameta.allure.*;
 import domain.model.Product;
 import io.restassured.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import mainutils.MockTimeProvider;
-import client.ProductClient;
 import testutil.TestUtils;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
 @Epic("Тестирование уровня QA Level 2 – Расширенные проверки")
 @Feature("Проверка обработки ошибок при создании, удалении и валидации продуктов")
-public class QaLevel2Test extends BaseTest {
+public class ProductServiceLevel2Test extends BaseProductServiceTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(QaLevel2Test.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProductServiceLevel2Test.class);
 
-    private final ProductClient productClient = new ProductClient();
-    private final TestDataSeeder seeder = new TestDataSeeder();
-
-    @Test(description = "Обновления запрещены ночью (22:00–06:00)")
+    @Test(description = "BUG-QA2-01: Обновления запрещены ночью (22:00–06:00)")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: в ночной период с 22:00 до 06:00 сервер должен запрещать обновление продуктов и возвращать 403. " +
             "Если возвращается 500 — это известный баг BUG-QA2-01.")
     @Issue("BUG-QA2-01")
     public void testUpdateForbiddenAtNight() {
-        // Arrange: задаём фиксированное серверное время — 01 января 2023, 23:00 (ночное время)
-        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 23, 0));
-        logger.info("🕐 Установлено серверное время: 2023-01-01 23:00");
+        // Arrange: Устанавливаем нужное мок-время и проверяем через assumeServerTime(...)
+        LocalDateTime nightTime = LocalDateTime.of(2023, 1, 1, 23, 0);
+        MockTimeProvider.setFixedTime(nightTime);
 
-        // Убедимся, что список созданных продуктов не пустой
-        assertThat(productIds)
-                .as("Список созданных продуктов не должен быть пустым")
-                .isNotEmpty();
+        TestUtils.assumeServerTime(nightTime);
+        logger.info("🕐 Установлено серверное время: {}", nightTime);
 
-        // Берём первый доступный продукт
         Long productId = productIds.get(0);
-
-        // Генерируем новые данные для обновления
         Product updateRequest = seeder.generateProduct();
-        // Act: отправляем запрос на обновление
-        Response response = productClient.updateProduct(productId, updateRequest);
-//        assertEquals(response.statusCode(), 500,
-//                "Ожидался только баг со статусом 500. Если статус 200 — это ошибка");
 
-        // Assert: ожидаем статус 403, либо 500 — если это известный баг, не должно 200
+        // Act: Выполняем запрос (обновление, удаление, получение)
+        Response response = productClient.updateProduct(productId, updateRequest);
+
+        // Assert: Проверяем статус: если баг — вызываем TestUtils.assertOrSkipIfKnownBug
         TestUtils.assertOrSkipIfKnownBug(response, 200, "BUG-QA2-01");
     }
 
-    @Test(description = "Удаления запрещены по понедельникам до 09:00")
+    @Test(description = "BUG-QA2-02: Удаления запрещены по понедельникам до 09:00")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: если сегодня понедельник и текущее серверное время до 09:00, то удаление продукта должно быть запрещено (403). " +
             "Если сервер возвращает 500 — это известный баг BUG-QA2-02.")
     @Issue("BUG-QA2-02")
     public void testDeleteForbiddenOnMondayMorning() {
-        // Arrange: устанавливаем серверное время — понедельник, 08:30 (до 09:00)
-        LocalDateTime monday0830 = LocalDateTime.of(2025, 5, 19, 8, 30); // Это понедельник
+        // Arrange: Устанавливаем нужное мок-время и проверяем через assumeServerTime(...)
+        LocalDateTime monday0830 = LocalDateTime.of(2025, 5, 19, 8, 30);
         MockTimeProvider.setFixedTime(monday0830);
+        TestUtils.assumeServerTime(monday0830);
         logger.info("🕐 Установлено серверное время: {}", monday0830);
 
-        // Проверяем, что список продуктов не пуст
-        assertThat(productIds)
-                .as("Список сгенерированных продуктов не должен быть пустым")
-                .isNotEmpty();
+        Long productId = productIds.get(1);
+        logger.info("🗑️ Попытка удалить продукт ID={} в понедельник до 09:00", productId);
 
-        // Выбираем продукт для удаления
-        Long productId = productIds.get(1); // второй продукт в списке
-        logger.info("🗑️ Тест BUG-QA2-02: Попытка удалить продукт с ID {} в понедельник до 09:00", productId);
-
-        // Act: выполняем DELETE-запрос
+        // Act: Выполняем запрос (обновление, удаление, получение)
         Response response = productClient.deleteProduct(productId);
 
-        // Assert: ожидаем 403 Forbidden, либо 500 — если это известный баг
+        // Assert: Проверяем статус: если баг — вызываем TestUtils.assertOrSkipIfKnownBug
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA2-02");
     }
 
-
-    @Test(description = "Окно обслуживания: каждая 5-я минута при секундах < 30 возвращает 503")
+    @Test(description = "BUG-QA2-03: Окно обслуживания: каждая 5-я минута при секундах < 30 возвращает 503")
     @Severity(SeverityLevel.NORMAL)
     @Description("Проверка: если время попадает в окно обслуживания (minute % 5 == 0 и seconds < 30), " +
             "сервер должен возвращать 503. Если он возвращает 500 — это известный баг BUG-QA2-03.")
     @Issue("BUG-QA2-03")
     public void testMaintenanceWindowReturns503() {
-        // Arrange: установка времени в 12:05:10 — попадает в окно обслуживания
-        MockTimeProvider.setFixedTime(LocalDateTime.of(2023, 1, 1, 12, 5, 10));
+        // Arrange: Устанавливаем нужное мок-время и проверяем через assumeServerTime(...)
+        LocalDateTime maintenanceTime = LocalDateTime.of(2023, 1, 1, 12, 5, 10);
+        MockTimeProvider.setFixedTime(maintenanceTime);
+        TestUtils.assumeServerTime(maintenanceTime);
+        logger.info("🛠️ Время установлено на окно обслуживания: {}", maintenanceTime);
 
-        assertThat(productIds)
-                .as("Список созданных продуктов не должен быть пустым")
-                .isNotEmpty();
+        Long productId = productIds.get(2);
 
-        Long id = productIds.get(2);
-        logger.info("🔧 Тест BUG-QA2-03: Проверка режима обслуживания при 12:05:10 для продукта ID={}", id);
+        // Act: Выполняем запрос (обновление, удаление, получение)
+        Response response = productClient.getProductById(productId);
 
-        // Act: выполняем GET-запрос
-        Response response = productClient.getProductById(id);
-
-        // Assert: ожидаем 503, но если баг — 500
+        // Assert: Проверяем статус: если баг — вызываем TestUtils.assertOrSkipIfKnownBug
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA2-03");
     }
 
-    @Test(description = "Названия продуктов не могут содержать спецсимволы (!@#...)")
+    @Test(description = "BUG-QA2-04: Названия продуктов не могут содержать спецсимволы (!@#...)", priority = 4)
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: при создании продукта с недопустимыми символами в названии " +
             "сервер должен вернуть 400. Если возвращает 500 — это известный баг BUG-QA2-04.")
@@ -126,7 +108,7 @@ public class QaLevel2Test extends BaseTest {
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA2-04");
     }
 
-    @Test(description = "Названия-продуктов, являющиеся палиндромами, зарезервированы")
+    @Test(description = "BUG-QA2-05: Названия-продуктов, являющиеся палиндромами, зарезервированы", priority = 5)
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: при создании продукта с палиндромным названием (например, 'racecar') " +
             "сервер должен вернуть 409 Conflict. Если возвращает 500 — это известный баг BUG-QA2-05.")
@@ -145,7 +127,7 @@ public class QaLevel2Test extends BaseTest {
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA2-05");
     }
 
-    @Test(description = "Не допускается более 5 операций с одним и тем же названием продукта")
+    @Test(description = "BUG-QA2-06: Не допускается более 5 операций с одним и тем же названием продукта", priority = 6)
     @Severity(SeverityLevel.CRITICAL)
     @Description("Проверка: если отправить 6 запросов на создание продукта с одинаковым названием, " +
             "то последний должен вернуть 429 Too Many Requests. Если вернёт 500 — это известный баг BUG-QA2-06.")
@@ -172,7 +154,7 @@ public class QaLevel2Test extends BaseTest {
         TestUtils.assertOrSkipIfKnownBug(response, 500, "BUG-QA2-06");
     }
 
-    @Test(description = "Цены не могут содержать одинаковые цифры подряд")
+    @Test(description = "BUG-QA2-07: Цены не могут содержать одинаковые цифры подряд", priority = 7)
     @Severity(SeverityLevel.NORMAL)
     @Description("Проверка: сервер должен отклонять создание продукта, если цена содержит повторяющиеся цифры (например, 111.11). " +
             "Ожидается статус 400 Bad Request. Если сервер вернёт 500 — это известный баг BUG-QA2-07.")
