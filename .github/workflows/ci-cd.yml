@@ -17,8 +17,27 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Build without tests
+        run: mvn clean install -DskipTests
+
+      - name: Run backend in background
+        run: |
+          nohup java -jar target/product-test-1.0-SNAPSHOT.jar > backend.log 2>&1 &
+          sleep 5
+
+      - name: Wait for Backend to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/swagger-ui/index.html > /dev/null; then
+              echo "✅ Backend is up!"
+              break
+            fi
+            echo "⏳ Waiting... ($i)"
+            sleep 2
+          done
+
+      - name: Run tests
+        run: mvn test
 
       - name: Build Docker image
         run: docker build -t your-dockerhub-username/product-test .

@@ -153,7 +153,7 @@
                         <configuration>
                             <!-- allur.results.directory не нужен тут -->
                             <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/E2E-suite.xml</suiteXmlFile>
+                                <suiteXmlFile>src/test/resources/APITest-suite.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <testNGArtifactName>org.testng:testng</testNGArtifactName>
                         </configuration>
@@ -163,7 +163,7 @@
         </profile>
 
         <profile>
-            <id>e2e-suite</id>
+            <id>apitest-suite</id>
             <build>
                 <plugins>
                     <plugin>
@@ -172,7 +172,7 @@
                         <configuration>
                             <!-- allur.results.directory не нужен тут -->
                             <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/E2E-suite.xml</suiteXmlFile>
+                                <suiteXmlFile>src/test/resources/APITest-suite.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <testNGArtifactName>org.testng:testng</testNGArtifactName>
                         </configuration>
